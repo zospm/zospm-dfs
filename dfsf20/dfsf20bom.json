@@ -3,6 +3,30 @@
 	{
 		"relid":"DFSF20",
 		"datasets":[ 
+                {
+                        "dsname":"${ZOSPM_CEEHLQ}.SCEELKED",
+                        "zones":["C"]
+                },
+                {
+                        "dsname":"${ZOSPM_CEEHLQ}.SCEESPC",
+                        "zones":["C"]
+                },
+                {
+                        "dsname":"${ZOSPM_CEEHLQ}.SCEECPP",
+                        "zones":["C"]
+                },
+                {
+                        "dsname":"${ZOSPM_CEEHLQ}.SCEEBND2",
+                        "zones":["C"]
+                },
+                {
+                        "dsname":"${ZOSPM_CEEHLQ}.SCEELIB",
+                        "zones":["C"]
+                },
+                {
+                        "dsname":"${ZOSPM_CSSHLQ}.CSSLIB",
+                        "zones":["C"]
+                },
 		{
 			"dsname":"SDFSBASE",
 			"dstype":"PDSE",
@@ -11,7 +35,7 @@
 			"primary":"12",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSCLST",
 			"dstype":"PDSE",
@@ -20,7 +44,7 @@
 			"primary":"30",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSDATA",
 			"dstype":"PDSE",
@@ -29,7 +53,7 @@
 			"primary":"25",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSEXEC",
 			"dstype":"PDSE",
@@ -38,7 +62,7 @@
 			"primary":"135",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSISRC",
 			"dstype":"PDSE",
@@ -47,7 +71,7 @@
 			"primary":"140",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSJLIB",
 			"dstype":"PDSE",
@@ -56,7 +80,7 @@
 			"primary":"30",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSJSID",
 			"dstype":"PDSE",
@@ -65,7 +89,7 @@
 			"primary":"10",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSMAC",
 			"dstype":"PDSE",
@@ -74,7 +98,7 @@
 			"primary":"2700",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSMLIB",
 			"dstype":"PDSE",
@@ -83,7 +107,7 @@
 			"primary":"13",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSPLIB",
 			"dstype":"PDSE",
@@ -92,7 +116,7 @@
 			"primary":"600",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSPROC",
 			"dstype":"PDSE",
@@ -101,7 +125,7 @@
 			"primary":"20",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSRESL",
 			"dstype":"PDS",
@@ -111,7 +135,7 @@
 			"secondary":"0",
 			"dirblks":"527",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSRTRM",
 			"dstype":"PDSE",
@@ -120,7 +144,7 @@
 			"primary":"220",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSSLIB",
 			"dstype":"PDSE",
@@ -129,7 +153,7 @@
 			"primary":"190",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSSMPL",
 			"dstype":"PDSE",
@@ -138,7 +162,7 @@
 			"primary":"125",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSSRC",
 			"dstype":"PDSE",
@@ -147,7 +171,7 @@
 			"primary":"5000",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDFSTLIB",
 			"dstype":"PDSE",
@@ -156,7 +180,7 @@
 			"primary":"18",
 			"secondary":"0",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDXRRESL",
 			"dstype":"PDS",
@@ -166,7 +190,7 @@
 			"secondary":"0",
 			"dirblks":"4",
 			"zones":["T"]
-		}
+		},
 		{
 			"dsname":"SDXRSAMP",
 			"dstype":"PDS",
@@ -176,17 +200,7 @@
 			"secondary":"0",
 			"dirblks":"3",
 			"zones":["T"]
-		}
-		{
-			"dsname":"Library",
-			"dstype":"O",
-			"recfm":"R",
-			"lrecl":"L",
-			"primary":"No.",
-			"secondary":"0",
-			"dirblks":"No.",
-			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSBASE",
 			"dstype":"PDSE",
@@ -195,7 +209,7 @@
 			"primary":"12",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSCLST",
 			"dstype":"PDSE",
@@ -204,7 +218,7 @@
 			"primary":"30",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSDATA",
 			"dstype":"PDSE",
@@ -213,7 +227,7 @@
 			"primary":"25",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSEXEC",
 			"dstype":"PDSE",
@@ -222,7 +236,7 @@
 			"primary":"135",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSIC4J",
 			"dstype":"PDSE",
@@ -231,7 +245,7 @@
 			"primary":"300",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSISRC",
 			"dstype":"PDSE",
@@ -240,7 +254,7 @@
 			"primary":"140",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSJCIC",
 			"dstype":"PDSE",
@@ -249,7 +263,7 @@
 			"primary":"5",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSJHFS",
 			"dstype":"PDSE",
@@ -258,7 +272,7 @@
 			"primary":"160",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSJJCL",
 			"dstype":"PDSE",
@@ -267,7 +281,7 @@
 			"primary":"3",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSJLIB",
 			"dstype":"PDSE",
@@ -276,7 +290,7 @@
 			"primary":"30",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSJRAR",
 			"dstype":"PDSE",
@@ -285,7 +299,7 @@
 			"primary":"300",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSJSAM",
 			"dstype":"PDSE",
@@ -294,7 +308,7 @@
 			"primary":"5",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSLOAD",
 			"dstype":"PDSE",
@@ -303,7 +317,7 @@
 			"primary":"2800",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSMAC",
 			"dstype":"PDSE",
@@ -312,7 +326,7 @@
 			"primary":"2700",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSMLIB",
 			"dstype":"PDSE",
@@ -321,7 +335,7 @@
 			"primary":"13",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSPLIB",
 			"dstype":"PDSE",
@@ -330,7 +344,7 @@
 			"primary":"600",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSPROC",
 			"dstype":"PDSE",
@@ -339,7 +353,7 @@
 			"primary":"20",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSRTRM",
 			"dstype":"PDSE",
@@ -348,7 +362,7 @@
 			"primary":"220",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSSLIB",
 			"dstype":"PDSE",
@@ -357,7 +371,7 @@
 			"primary":"190",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSSMPL",
 			"dstype":"PDSE",
@@ -366,7 +380,7 @@
 			"primary":"125",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSSRC",
 			"dstype":"PDSE",
@@ -375,7 +389,7 @@
 			"primary":"5000",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADFSTLIB",
 			"dstype":"PDSE",
@@ -384,7 +398,7 @@
 			"primary":"18",
 			"secondary":"0",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADXRLOAD",
 			"dstype":"PDS",
@@ -394,7 +408,7 @@
 			"secondary":"0",
 			"dirblks":"65",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"ADXRSAMP",
 			"dstype":"PDS",
@@ -404,17 +418,7 @@
 			"secondary":"0",
 			"dirblks":"3",
 			"zones":["D"]
-		}
-		{
-			"dsname":"Data Set",
-			"dstype":"O",
-			"recfm":"R",
-			"lrecl":"L",
-			"primary":"No.",
-			"secondary":"0",
-			"dirblks":"No.",
-			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"MODBLKS",
 			"dstype":"PDS",
@@ -424,7 +428,7 @@
 			"secondary":"0",
 			"dirblks":"280",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"OPTIONS",
 			"dstype":"PDS",
@@ -434,7 +438,7 @@
 			"secondary":"0",
 			"dirblks":"2",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"INSTALIB",
 			"dstype":"PDS",
@@ -444,7 +448,7 @@
 			"secondary":"0",
 			"dirblks":"400",
 			"zones":["D"]
-		}
+		},
 		{
 			"dsname":"INSTATBL",
 			"dstype":"PDS",
