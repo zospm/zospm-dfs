@@ -28,6 +28,22 @@
                         "zones":["C"]
                 },
 		{
+			"dsname":"SDFSZFS",
+			"dstype":"ZFS",
+			"primary":"1200",
+			"secondary":"150",
+			"zones":["T"],
+			"dddefpath":[
+				"SDFSIC4J:usr/lpp/ims/ims15/ico/",
+				"SDFSJHFS:usr/lpp/ims/ims15/imsjava/",
+				"SDFSJRAR:usr/lpp/ims/ims15/imsjava/rar/",
+				"SDFSJCIC:usr/lpp/ims/ims15/imsjava/cics/",
+				"SDFSJSAM:usr/lpp/ims/ims15/imsjava/samples/"
+			],
+			"mountpnt":"usr/lpp/ims/ims15/",
+			"leaves":"ico,ico/IBM,imsjava,imsjava/IBM,imsjava/rar,imsjava/rar/IBM,imsjava/cics,imsjava/cics/IBM,imsjava/samples,imsjava/samples/IBM"
+		},
+		{
 			"dsname":"SDFSBASE",
 			"dstype":"PDSE",
 			"recfm":"FB",
@@ -427,7 +443,7 @@
 			"primary":"407",
 			"secondary":"0",
 			"dirblks":"280",
-			"zones":["D"]
+			"zones":["T"]
 		},
 		{
 			"dsname":"OPTIONS",
@@ -437,7 +453,7 @@
 			"primary":"3",
 			"secondary":"0",
 			"dirblks":"2",
-			"zones":["D"]
+			"zones":["T"]
 		},
 		{
 			"dsname":"INSTALIB",
@@ -447,7 +463,7 @@
 			"primary":"276",
 			"secondary":"0",
 			"dirblks":"400",
-			"zones":["D"]
+			"zones":["T"]
 		},
 		{
 			"dsname":"INSTATBL",
@@ -457,7 +473,7 @@
 			"primary":"276",
 			"secondary":"0",
 			"dirblks":"400",
-			"zones":["D"]
+			"zones":["T"]
 		}
 		]
 	}
