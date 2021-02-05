@@ -1,0 +1,64 @@
+#!/bin/sh
+
+function chkdtouch {
+	dtouchparms=$*
+	for parm in $*; do
+		dataset="${parm}"
+	done	
+	echo "Allocate ${dataset}"
+	drm -f "${dataset}"
+	dtouch ${dtouchparms}
+	if [ $? -gt 0 ]; then
+		echo "Error allocating dataset: ${dataset}" >&2
+		exit 16
+	fi
+}
+
+function dynamicAPFRegister {
+	dataset="$1"
+	echo "APF Authorize ${dataset}"
+
+        info=`dls -l ${dataset}`
+        volume=`echo "${info}" | awk '{ print $5; }'`
+        opercmd "d sms,volume(${volume})" 2>/dev/null | grep "NOT AN SMS MANAGED DASD VOLUME"
+        if [ $? -gt 0 ]; then
+        	setstr="SMS"
+        else
+                setstr="VOLUME=${volume}"
+	fi
+	opercmd "SETPROG APF,ADD,DSNAME=${dataset},${setstr}" >/dev/null 2>&1
+}
+
+hlq=ZOSPMT
+mlq=DFSF20
+
+datasets="${hlq}.${mlq}.QBLKS ${hlq}.${mlq}.SHMSG ${hlq}.${mlq}.LGMSG"
+for dataset in ${datasets}; do
+	chkdtouch -tseq ${dataset}
+done
+
+datasets="${hlq}.${mlq}.ACBLIBA ${hlq}.${mlq}.ACBLIBB ${hlq}.${mlq}.FORMATA ${hlq}.${mlq}.FORMATB"
+for dataset in ${datasets}; do
+	chkdtouch -tpds -ru -l0 -B6144 ${dataset}
+done
+
+datasets="${hlq}.${mlq}.MODBLKSA ${hlq}.${mlq}.MODBLKSB"
+for dataset in ${datasets}; do
+	chkdtouch -tpds -ru -l0 -B32760 ${dataset}
+done
+
+dataset="${hlq}.${mlq}.MODSTAT"
+chkdtouch -tpds -rfb -l80 -B80 -s56664 ${dataset}
+
+dataset="${hlq}.${mlq}.RDS"
+chkdtouch -tseq -B4096 ${dataset}
+
+apfllq="SDFSRESL MODBLKSA MODBLKSB SDXRRESL SDFSJLIB"
+for llq in ${apfllq}; do
+	dataset="${hlq}.${mlq}.${llq}"
+	dynamicAPFRegister "${dataset}"
+	if [ $? -gt 0 ]; then
+		echo "Unable to APF register: ${dataset}" >&2
+		exit 16
+	fi
+done	
