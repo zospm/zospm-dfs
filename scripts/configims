@@ -50,7 +50,8 @@ for llq in ${apfllq}; do
 	fi
 done
 
-imsppt="                             /* IMS ONLINE CONTROL REGION            */
+imsppt="
+                             /* IMS ONLINE CONTROL REGION            */
    PPT PGMNAME(DFSMVRC0)     /* PROGRAM NAME = DFSMVRC0              */
             CANCEL           /* PROGRAM CAN BE CANCELLED             */
             KEY(7)           /* PROTECT KEY ASSIGNED IS 7            */
@@ -60,6 +61,27 @@ imsppt="                             /* IMS ONLINE CONTROL REGION            */
             DSI              /* DOES REQUIRE DATA SET INTEGRITY      */
             PASS             /* PASSWORD PROTECTION ACTIVE           */
             AFF(NONE)        /* NO CPU AFFINITY                      */
+
+                             /* BPE - BASE PRIMITIVE ENVIRONMENT     */
+   PPT PGMNAME(BPEINI00)     /* PROGRAM NAME = BPEINI00              */
+            CANCEL           /* PROGRAM CAN BE CANCELLED             */
+            KEY(7)           /* PROTECT KEY ASSIGNED IS 7            */
+            NOSWAP           /* PROGRAM IS NOT-SWAPPABLE             */
+            NOPRIV           /* PROGRAM IS NOT PRIVILEGED            */
+            DSI              /* REQUIRES DATA SET INTEGRITY          */
+            PASS             /* CANNOT BYPASS PASSWORD PROTECTION    */
+            SYST             /* PROGRAM IS A SYSTEM TASK             */
+            AFF(NONE)        /* NO CPU AFFINITY                      */
+
+PPT PGMNAME(HWSHWS00)     /* PROGRAM NAME = HWSHWS00           */
+         CANCEL           /* PROGRAM CAN BE CANCELED           */
+         KEY(7)           /* PROTECT KEY ASSIGNED IS 7         */
+         SWAP             /* PROGRAM IS SWAPPABLE              */
+         NOPRIV           /* PROGRAM IS NOT PRIVILEGED         */
+         DSI              /* REQUIRES DATA SET INTEGRITY       */
+         PASS             /* CANNOT BYPASS PASSWORD PROTECTION */
+         SYST             /* PROGRAM IS A SYSTEM TASK          */
+         AFF(NONE)        /* NO CPU AFFINITY                   */
 "
 
 dynamicPPTRegister "ADD" "@@" "${imsppt}"
