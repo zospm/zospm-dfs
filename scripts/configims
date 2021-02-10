@@ -1,5 +1,7 @@
 #!/bin/sh
 
+. ./dynreg.fn 
+
 function chkdtouch {
 	dtouchparms=$*
 	for parm in $*; do
@@ -12,21 +14,6 @@ function chkdtouch {
 		echo "Error allocating dataset: ${dataset}" >&2
 		exit 16
 	fi
-}
-
-function dynamicAPFRegister {
-	dataset="$1"
-	echo "APF Authorize ${dataset}"
-
-        info=`dls -l ${dataset}`
-        volume=`echo "${info}" | awk '{ print $5; }'`
-        opercmd "d sms,volume(${volume})" 2>/dev/null | grep "NOT AN SMS MANAGED DASD VOLUME"
-        if [ $? -gt 0 ]; then
-        	setstr="SMS"
-        else
-                setstr="VOLUME=${volume}"
-	fi
-	opercmd "SETPROG APF,ADD,DSNAME=${dataset},${setstr}" >/dev/null 2>&1
 }
 
 hlq=ZOSPMT
@@ -56,9 +43,28 @@ chkdtouch -tseq -B4096 ${dataset}
 apfllq="SDFSRESL MODBLKSA MODBLKSB SDXRRESL SDFSJLIB"
 for llq in ${apfllq}; do
 	dataset="${hlq}.${mlq}.${llq}"
-	dynamicAPFRegister "${dataset}"
-	if [ $? -gt 0 ]; then
-		echo "Unable to APF register: ${dataset}" >&2
-		exit 16
+	dynamicAPFRegister "ADD" "${dataset}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		exit $rc
 	fi
-done	
+done
+
+imsppt="                             /* IMS ONLINE CONTROL REGION            */
+   PPT PGMNAME(DFSMVRC0)     /* PROGRAM NAME = DFSMVRC0              */
+            CANCEL           /* PROGRAM CAN BE CANCELLED             */
+            KEY(7)           /* PROTECT KEY ASSIGNED IS 7            */
+            NOSWAP           /* PROGRAM IS NOT-SWAPPABLE             */
+            NOPRIV           /* PROGRAM IS NOT PRIVILEGED            */
+            SYST             /* PROGRAM IS A SYSTEM TASK             */
+            DSI              /* DOES REQUIRE DATA SET INTEGRITY      */
+            PASS             /* PASSWORD PROTECTION ACTIVE           */
+            AFF(NONE)        /* NO CPU AFFINITY                      */
+"
+
+dynamicPPTRegister "ADD" "@@" "${imsppt}"
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+	

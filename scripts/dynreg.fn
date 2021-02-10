@@ -1,0 +1,198 @@
+#
+# This file is meant to be SOURCE'd
+# dynamic registration functions are provided for adding PPT entries, APF datasets, PARMLIB datasets
+#
+dynamicCheckVerb() {
+	vfn="$1"
+	vpos="$2"
+	vneg="$3"
+	vact="$4"
+
+	if [ "${vact}" != "${vpos}" ] && [ "${vact}" != "${vneg}" ]; then
+		echo "${vfn}: verb must be one of ${vpos} or ${vneg}. ${vact} specified." >&2
+		return 8
+	fi
+}
+
+dynamicPARMLIBRegister() {
+	pverb="$1"
+	psfx="$2"
+	pdataset=$(echo $3 | tr '[:lower:]' '[:upper:]');
+
+	if [ $# -ne 3 ]; then
+		echo "dynamicPARMLIBRegister requires 3 arguments. $# passed" >&2
+		return 8
+	fi
+	dynamicCheckVerb "dynamicPARMLIBRegister" "ADD" "DELETE" "${pverb}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+
+	info=`dls "${pdataset}"`
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+
+	parmlib=`pparm 2>/dev/null`
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+	if [ "${pverb}" = "ADD" ]; then
+		parmlib="${pdataset}
+${parmlib}"
+	fi
+	newparmlibds=`mvstmp`
+	dtouch "${newparmlibds}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+	entries=''
+	for libds in $parmlib; do
+		if [ "${pverb}" = "DELETE" ] && [ "${libds}" = "${pdataset}" ]; then
+                        continue;
+		fi
+                if [ "${libds}" = "SYS1.PARMLIB" ]; then
+                        # SETLOAD will append SYS1.PARMLIB automatically
+                        continue;
+		fi
+                entry=`dls -l "$libds" | awk ' { printf("%-8s %-44s %6s\n","PARMLIB", $1, $5); }'`
+		rc=$?
+		if [ $rc -gt 0 ]; then
+                        return $rc
+		fi
+		entries="${entries}
+${entry}"
+	done
+	decho "${entries}" "${newparmlibds}(LOAD${psfx})"
+	if [ $? -gt 0 ]; then
+		return $?
+	fi
+
+	opercmd "SETLOAD ${psfx},PARMLIB,DSN=${newparmlibds}" 2>/dev/null >/dev/null
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		echo "Unable to update parmlib. Temporary dataset: ${newparmlibds} retained" >&2
+		return $rc
+	fi
+	drm "${newparmlibds}"
+	return $?
+}
+
+#
+# Note that this routine assumes that the 'active' SCHED is the same as the 'IPL' SCHED.
+# If it is not, then this can change PPT entries inadvertently
+# TBD: @@ needs to be exposed as an environment variable
+#
+function dynamicPPTRegister {
+	pptverb="$1"
+	pptsfx="$2"
+	pptdef="$3"
+	if [ $# -lt 3 ]; then
+		echo "dynamicAPFRegister requires 3 arguments. $# passed" >&2
+		return 8
+	fi
+	dynamicCheckVerb "dynamicAPFRegister" "ADD" "DELETE" "${pptverb}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+	if [ "${pptverb}" = "DELETE" ]; then
+		echo "No support for deleting PPT entries" >&2
+		return 8
+	fi
+
+	newds=`mvstmp`
+	origppt=`opercmd 'd ppt'`
+	iplsched=`opercmd 'd iplinfo,sch' | grep 'IEE255I' | awk '{ len = length($8); print substr($8,2,len-2); }'`
+	newsub=${iplsched##*$pptsfx}
+	if [ "$newsub" != "$iplsched" ]; then
+		echo "Can not add PPT entry - $pptsfx is already in use" >&2
+		return 8
+	fi
+	dtouch "${newds}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+	decho "${pptdef}" "${newds}(SCHED${pptsfx})"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+
+	dynamicPARMLIBRegister "ADD" "${pptsfx}" "${newds}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+
+	out=`opercmd "SET SCH=($pptsfx,$iplsched)"`
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		echo "${out}"
+		return $rc
+	fi
+
+	dynamicPARMLIBRegister "DELETE" "${pptsfx}" "${newds}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+	newppt=`opercmd 'd ppt'`
+
+	origlines=`echo "${origppt}" | wc -l`
+	newlines=`echo "${newppt}" | wc -l`
+
+	#convert to arithmetic
+	origlines=$((origlines))
+	newlines=$((newlines))
+
+	if [ $origlines -eq $newlines ]; then
+		rc=4 # number of lines is the same - perhaps the PPT was already in the list
+	elif [ $((origlines+1)) -eq $newlines ]; then
+		rc=0
+	else
+		echo "${origppt}" >/tmp/$$_orig.ppt
+		echo "${newppt}" >/tmp/$$_new.ppt
+		echo "The new PPT table is not as expected. Here is a difference of the original and new table" >&2		
+		diff /tmp/$$_orig.ppt /tmp/$$_new.ppt
+		rc=8
+	fi
+
+	drm -f "${newds}"
+	return $rc
+}
+
+function dynamicAPFRegister {
+	averb="$1"
+	adataset="$2"
+
+	if [ $# -ne 2 ]; then
+		echo "dynamicAPFRegister requires 2 arguments. $# passed" >&2
+		return 8
+	fi
+	dynamicCheckVerb "dynamicAPFRegister" "ADD" "DELETE" "${averb}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+
+	info=`dls -l ${adataset}`	
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+	volume=`echo "${info}" | awk '{ print $5; }'`
+	opercmd "d sms,volume(${volume})" 2>/dev/null | grep "NOT AN SMS MANAGED DASD VOLUME"
+	if [ $? -gt 0 ]; then
+		setstr="SMS"
+	else
+            	setstr="VOLUME=${volume}"
+	fi
+	opercmd "SETPROG APF,${averb},DSNAME=${dataset},${setstr}" >/dev/null 2>&1
+	return $?
+}
