@@ -157,7 +157,7 @@
 <var>IXUSYSVS</var> <val>C4USR1</val>
 <var>IXUDLBVS</var> <val>C4USR1</val>
 <var>IXUIVPVS</var> <val>C4USR1</val>
-<var>IXUSMCLS</var> <val>MCAPPL</val>
+<var>IXUSMCLS</var> <val>DEFAULT</val>
 <var>IXUSSCLS</var> <val>SCAPPL</val>
 <var>IXUVSMHQ</var> <val>ZOSPMI</val>
 <var>IXUUTLHQ</var> <val>ZOSPMI</val>

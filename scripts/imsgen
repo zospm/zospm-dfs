@@ -6,22 +6,36 @@ MLQ=DFSF20
 IHLQ=ZOSPMI
 IMLQ=DFSF20
 
-ivpds="ADFSMAC USERMAC OBJDSET"
+ivpds="USERMAC"
 for ds in $ivpds; do
-	drm -f "${HLQ}.${MLQ}.${ds}"
-	dtouch "${HLQ}.${MLQ}.${ds}"
+	drm -f "${IHLQ}.${IMLQ}.${ds}"
+	dtouch "${IHLQ}.${IMLQ}.${ds}"
 	if [ $? -gt 0 ]; then
 		exit 16
 	fi
 done
 
-asm="${HLQ}.${MLQ}.INSTALIB(IV9C201T)"
-
-mvscmd --pgm=ASMA90 --syslib=${HLQ}.${MLQ}.SDFSMAC --sysin="${asm}" --sysprint=/tmp/imsgen.lst --syslin=/tmp/imsgen.jcl
+jcl="${HLQ}.${MLQ}.INSTALIB(IV9C101J)"
+./runjcl "${jcl}"
 rc=$?
 if [ $rc -gt 0 ]; then
-	echo "Assemble failed. See /tmp for details" >&2
+	echo "Allocation JCL ${jcl} failed with $rc" >&2
 	exit $rc
 fi
 
-submit '/tmp/imsgen.jcl'
+asm="${HLQ}.${MLQ}.INSTALIB(IV9C201T)"
+jcl='/tmp/imsgen.jcl'
+
+mvscmd --pgm=ASMA90 --syslib=${HLQ}.${MLQ}.SDFSMAC --sysin="${asm}" --sysprint=dummy --syslin="${jcl}"
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "IMSGEN Assemble failed. See /tmp for details" >&2
+	exit $rc
+fi
+
+./runjcl "${jcl}"
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "IMSGEN JCL ${jcl} failed with $rc" >&2
+	exit $rc
+fi

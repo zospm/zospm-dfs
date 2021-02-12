@@ -1,0 +1,42 @@
+#!/bin/sh
+#set -x
+
+function runJCL {
+	jcl="$1"     
+	maxwait=$2
+
+	jobid=`submit $jcl | awk '{ print $2 }'`
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		return $rc
+	fi
+
+	currwait=0
+	while [ true ]; do
+		status=`jls 2>/dev/null ${jobid}`
+		state=`echo ${status} | awk ' { print $4; }'`
+		if [ "${state}" = "CC" ]; then
+			rc=`echo ${status} | awk ' { print $5; }'`
+			if [ $rc -gt 0 ]; then
+				echo "Job ${jobid} failed with rc: $rc" >&2
+			fi
+			return ${rc}
+		elif [ "${state}" = "ABEND" ]; then
+			echo "Job ${jobid} ABENDED" >&2
+			return 32
+		else
+			sleep 1
+			currwait=$((curwait+1))
+		fi
+		if [ ${currwait} -gt ${maxwait} ]; then
+			echo "Timed out waiting for job ${jobid} to complete" >&2
+			return -1
+		fi
+	done
+}
+
+runJCL "$1" 10
+exit $?   
+		
+
+
