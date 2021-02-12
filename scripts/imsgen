@@ -1,0 +1,27 @@
+#!/bin/sh
+#set -x
+HLQ=ZOSPMT
+MLQ=DFSF20
+
+IHLQ=ZOSPMI
+IMLQ=DFSF20
+
+ivpds="ADFSMAC USERMAC OBJDSET"
+for ds in $ivpds; do
+	drm -f "${HLQ}.${MLQ}.${ds}"
+	dtouch "${HLQ}.${MLQ}.${ds}"
+	if [ $? -gt 0 ]; then
+		exit 16
+	fi
+done
+
+asm="${HLQ}.${MLQ}.INSTALIB(IV9C201T)"
+
+mvscmd --pgm=ASMA90 --syslib=${HLQ}.${MLQ}.SDFSMAC --sysin="${asm}" --sysprint=/tmp/imsgen.lst --syslin=/tmp/imsgen.jcl
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "Assemble failed. See /tmp for details" >&2
+	exit $rc
+fi
+
+submit '/tmp/imsgen.jcl'

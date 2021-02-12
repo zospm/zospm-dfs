@@ -1,0 +1,5 @@
+#!/bin/sh
+#set -x
+export HLQ=ZOSPMT
+export MLQ=DFSF20
+echo "        IMSCTRL ALL SYSTEM=DCCTL" | mvscmd --pgm=DFSPRE00 --steplib=${HLQ}.${MLQ}.sdfsresl --syslib=${HLQ}.${MLQ}.sdfsmac --sysprint=stdout --sysin=stdin

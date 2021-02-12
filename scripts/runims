@@ -1,0 +1,12 @@
+#!/bin/sh
+#set -x
+
+job=`submit ims.jcl | awk ' { print $2; }'`
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+echo "Job ${job} submitted"
+sleep 1
+jls ${job}
+ddls ${job}
