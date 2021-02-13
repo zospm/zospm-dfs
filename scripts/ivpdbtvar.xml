@@ -155,7 +155,7 @@
 <var>IXUSAMOD</var> <val>SYS1.MODGEN</val>
 <var>IXUSMACL</var> <val>SYS1.MACLIB</val>
 <var>IXUSPROC</var> <val>SYS1.PROCLIB</val>
-<var>IXUTZONE</var> <val>IMSTZ15</val>
+<var>IXUTZONE</var> <val>DFSF20T</val>
 <var>IXUGZDSN</var> <val>ZOSPMS.DFSF20G.GLOBAL.CSI</val>
 <var>IXUVSAMD</var> <val>8192</val>
 <var>IXUTRCVB</var> <val>20084</val>

@@ -1,5 +1,5 @@
 #!/bin/sh
-set -x
+#set -x
 HLQ=ZOSPMT
 MLQ=DFSF20
 
@@ -12,7 +12,7 @@ for mem in ${members}; do
 	./runjcl "${jcl}"
 	rc=$?
 	if [ $rc -gt 0 ]; then
-		echo "Allocation JCL ${jcl} failed with $rc" >&2
+		echo "Allocation job ${jcl} failed with $rc" >&2
 		exit $rc
 	fi
 done
@@ -27,9 +27,30 @@ if [ $rc -gt 0 ]; then
 	exit $rc
 fi
 
-./runjcl "${jcl}"
+#
+# Need to compress this dataset if doing repeated imsgen's
+#
+./dcompress ZOSPMT.DFSF20.TFORMAT
 rc=$?
 if [ $rc -gt 0 ]; then
-	echo "IMSGEN JCL ${jcl} failed with $rc" >&2
+	echo "Unable to compress ZOSPMT.DSF20.TFORMAT before IMSGEN" >&2
 	exit $rc
 fi
+
+./runjcl "${jcl}"
+rc=$?
+if [ $rc -gt 4 ]; then  # MSF - Greg Vance is helping me with the warnings
+	echo "IMSGEN job ${jcl} failed with $rc" >&2
+	exit $rc
+fi
+
+members='IV3C202J IV3C203J IV3C301J IV3C302J IV3C401J'
+for mem in ${members}; do
+	jcl="${HLQ}.${MLQ}.INSTALIB(${mem})"
+	./runjcl "${jcl}"
+	rc=$?
+	if [ $rc -gt 4 ]; then
+		echo "Job ${jcl} failed with $rc" >&2
+		exit $rc
+	fi
+done
