@@ -5,6 +5,10 @@ function runJCL {
 	jcl="$1"     
 	maxwait=$2
 
+	if [ "${jcl#*/}" = "${jcl}" ]; then
+		# Dataset - no slashes
+		jcl="//'${jcl}'"
+	fi
 	jobid=`submit $jcl | awk '{ print $2 }'`
 	rc=$?
 	if [ $rc -gt 0 ]; then
@@ -15,19 +19,22 @@ function runJCL {
 	while [ true ]; do
 		status=`jls 2>/dev/null ${jobid}`
 		state=`echo ${status} | awk ' { print $4; }'`
-		if [ "${state}" = "CC" ]; then
+		case "$state" in
+		CC)
 			rc=`echo ${status} | awk ' { print $5; }'`
 			if [ $rc -gt 0 ]; then
 				echo "Job ${jobid} failed with rc: $rc" >&2
 			fi
 			return ${rc}
-		elif [ "${state}" = "ABEND" ]; then
+		;;
+		ABEND*)
 			echo "Job ${jobid} ABENDED" >&2
 			return 32
-		else
+		;;
+		*)
 			sleep 1
 			currwait=$((curwait+1))
-		fi
+		esac
 		if [ ${currwait} -gt ${maxwait} ]; then
 			echo "Timed out waiting for job ${jobid} to complete" >&2
 			return -1

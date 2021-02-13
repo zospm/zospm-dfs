@@ -1,0 +1,35 @@
+#!/bin/sh
+set -x
+HLQ=ZOSPMT
+MLQ=DFSF20
+
+IHLQ=ZOSPMI
+IMLQ=DFSF20
+
+members='IV3C101J IV3C105J'
+for mem in ${members}; do
+	jcl="${HLQ}.${MLQ}.INSTALIB(${mem})"
+	./runjcl "${jcl}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		echo "Allocation JCL ${jcl} failed with $rc" >&2
+		exit $rc
+	fi
+done
+
+asm="${HLQ}.${MLQ}.INSTALIB(IV9C201T)"
+jcl='/tmp/imsgen.jcl'
+
+mvscmd --pgm=ASMA90 --syslib=${HLQ}.${MLQ}.SDFSMAC --sysin="${asm}" --sysprint=dummy --syslin="${jcl}"
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "IMSGEN Assemble failed. See /tmp for details" >&2
+	exit $rc
+fi
+
+./runjcl "${jcl}"
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "IMSGEN JCL ${jcl} failed with $rc" >&2
+	exit $rc
+fi

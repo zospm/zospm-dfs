@@ -24,10 +24,9 @@ ZDSVC4=`zoneDecimalMap ${SVC4}`
 #
 # Compress PDS first to ensure it will have enough space to bind into
 #
-echo "  COPY OUTDD=OUT,INDD=IN" | mvscmd --pgm=IEBCOPY --in=${HLQ}.${MLQ}.SDFSRESL,old --out=${HLQ}.${MLQ}.SDFSRESL,old --sysin=stdin --sysprint=/tmp/$$.compress.lst
+./dcompress "${HLQ}.${MLQ}.SDFSRESL"
 rc=$?
 if [ $rc -gt 0 ]; then
-	echo "Compress failed. See /tmp for details" >&2
 	exit $rc
 fi
 

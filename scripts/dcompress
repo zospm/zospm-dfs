@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# Compress dataset
+#
+#set -x
+if [ $# -eq 0 ]; then
+	echo "Syntax: $0 <dataset>" >&2
+	echo "  compresses <dataset> in place" >&2
+	exit 4
+fi
+ds="$1"
+
+out="/tmp/$$.compress.lst"
+echo "  COPY OUTDD=OUT,INDD=IN" | mvscmd --pgm=IEBCOPY --in=${ds},old --out=${ds},old --sysin=stdin --sysprint="${out}"
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "Compress failed." >&2
+	cat "${out}"
+fi
+rm "${out}"
+exit $rc
