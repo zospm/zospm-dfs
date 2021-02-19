@@ -1,8 +1,6 @@
 #!/bin/sh
 #set -x
 
-./runjcl "./ims.jcl"
+./runtask "./ims.jcl"
 rc=$?
-if [ $rc -gt 0 ]; then
-	exit $rc
-fi
+exit $rc

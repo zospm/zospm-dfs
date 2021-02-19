@@ -1,0 +1,33 @@
+#!/bin/sh
+#set -x
+
+function runJobs {
+	container="$1"
+	maxwait=$2   
+	shift 2
+	joblist=$*
+
+	for jobinfo in ${joblist}; do
+		job=${jobinfo%:*}
+		maxrc=${jobinfo#*:} 
+		if [ "${job#*/}" = "${job}" ]; then
+			# Dataset - no slashes
+			file="//'${container}(${job})'"
+		else 
+			# USS file - has a slash
+			file="${container}/${job}"
+		fi
+		./runjob "${file}" ${maxwait} ${maxrc}
+		rc=$?     
+		if [ $rc -gt 0 ]; then
+			return $rc;
+		fi
+	done	
+	return 0
+}
+
+runJobs $* 
+exit $?   
+		
+
+

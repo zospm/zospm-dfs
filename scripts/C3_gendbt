@@ -6,16 +6,14 @@ MLQ=DFSF20
 IHLQ=ZOSPMI
 IMLQ=DFSF20
 
-members='IV3C101J IV3C105J'
-for mem in ${members}; do
-	jcl="${HLQ}.${MLQ}.INSTALIB(${mem})"
-	./runjcl "${jcl}"
-	rc=$?
-	if [ $rc -gt 0 ]; then
-		echo "Allocation job ${jcl} failed with $rc" >&2
-		exit $rc
-	fi
-done
+maxwait=10
+ds="${HLQ}.${MLQ}.INSTALIB"
+jobs='IV3C101J:0 IV3C105J:0'
+./runJobs "${ds}" ${maxwait} ${jobs} 
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
 
 asm="${HLQ}.${MLQ}.INSTALIB(IV9C201T)"
 jcl='/tmp/imsgen.jcl'
@@ -37,20 +35,17 @@ if [ $rc -gt 0 ]; then
 	exit $rc
 fi
 
-./runjcl "${jcl}"
+./runjob "${jcl}" ${maxwait} 4
 rc=$?
-if [ $rc -gt 4 ]; then  # MSF - Greg Vance is helping me with the warnings
-	echo "IMSGEN job ${jcl} failed with $rc" >&2
+if [ $rc -gt 0 ]; then
 	exit $rc
 fi
 
-members='IV3C202J IV3C203J IV3C301J IV3C302J IV3C401J'
-for mem in ${members}; do
-	jcl="${HLQ}.${MLQ}.INSTALIB(${mem})"
-	./runjcl "${jcl}"
-	rc=$?
-	if [ $rc -gt 4 ]; then
-		echo "Job ${jcl} failed with $rc" >&2
-		exit $rc
-	fi
-done
+jobs='IV3C202J:0 IV3C203J:0 IV3C301J:0 IV3C302J:0 IV3C401J:0'
+./runJobs "${ds}" ${maxwait} ${jobs} 
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+
+exit 0

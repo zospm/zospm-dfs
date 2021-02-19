@@ -3,15 +3,9 @@
 HLQ=ZOSPMT
 MLQ=DFSF20
 
-members='IV3E308J IV3E309J IV3E312J IV3E313J IV3E314J IV3E315J IV3E317J IV3E318J IV3E319J'
-for mem in ${members}; do
-	jcl="${HLQ}.${MLQ}.INSTALIB(${mem})"
-	./runjcl "${jcl}"
-	rc=$?
-	if [ $rc -gt 4 ]; then
-		echo "GEN job ${jcl} failed with $rc" >&2
-		exit $rc
-	fi
-done
+members='IV3E308J:0 IV3E309J:0 IV3E312J:0 IV3E313J:0 IV3E314J:0 IV3E315J:0 IV3E317J:0 IV3E318J:0 IV3E319J:0'
+ds="${HLQ}.${MLQ}.INSTALIB"
+./runjobs "${ds}" ${maxwait} ${members}
+rc=$?
 
-exit 0
+exit $rc 

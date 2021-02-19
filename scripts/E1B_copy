@@ -3,11 +3,8 @@
 HLQ=ZOSPMT
 MLQ=DFSF20
 
+maxwait=10
 jcl="${HLQ}.${MLQ}.INSTALIB(IV3E102J)"
-./runjcl "${jcl}"
+./runjob "${jcl}" ${maxwait} 4
 rc=$?
-if [ $rc -gt 4 ]; then
-	echo "Job ${jcl} failed with $rc" >&2
-fi
-
-exit 0
+exit $rc

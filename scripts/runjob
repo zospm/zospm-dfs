@@ -1,10 +1,12 @@
 #!/bin/sh
 #set -x
 
-function runJCL {
+function runJob {
 	jcl="$1"     
 	maxwait=$2
+	maxrc=$3
 
+echo "$jcl"
 	if [ "${jcl#*/}" = "${jcl}" ]; then
 		# Dataset - no slashes
 		jcl="//'${jcl}'"
@@ -22,17 +24,19 @@ function runJCL {
 		case "$state" in
 		CC)
 			rc=`echo ${status} | awk ' { print $5; }'`
-			if [ $rc -gt 0 ]; then
-				echo "Job ${jobid} failed with rc: $rc" >&2
+			if [ $rc -gt ${maxrc} ]; then
+				echo "JCL ${jcl}, job ${jobid} failed with rc: $rc" >&2
+			else 
+				rc=0
 			fi
 			return ${rc}
 		;;
 		ABEND*)
-			echo "Job ${jobid} ABENDED" >&2
+			echo "JCL ${jcl}, job ${jobid} ABENDED" >&2
 			return 32
 		;;
 		JCLERR)
-			echo "Job ${jobid} has a JCL error" >&2
+			echo "JCL ${jcl}, job ${jobid} has a JCL error" >&2
 			return 32
 		;;
 		*)
@@ -40,13 +44,13 @@ function runJCL {
 			currwait=$((currwait+1))
 		esac
 		if [ ${currwait} -gt ${maxwait} ]; then
-			echo "Timed out waiting for job ${jobid} to complete" >&2
-			return -1
+			echo "Timed out waiting for JCL ${jcl}, job ${jobid} to complete" >&2
+			return 64 
 		fi
 	done
 }
 
-runJCL "$1" 10
+runJob $* 
 exit $?   
 		
 
