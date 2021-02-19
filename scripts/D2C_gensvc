@@ -1,0 +1,94 @@
+#!/bin/sh
+#set -x
+
+zoneDecimalMap() {
+	val=$1
+	if [ ${val} = 202 ]; then
+		echo "20B"
+	elif [ ${val} = 207 ]; then
+		echo "20G"
+	else
+		echo "Write code for 'proper' zone decimal mapping of 0->9 for low digit to {,A,B,C,...,I" >&2
+		exit 8
+	fi
+	return 0
+}
+
+export HLQ=ZOSPMT
+export MLQ=DFSF20
+export SVC2=203
+export SVC4=202
+
+ZDSVC4=`zoneDecimalMap ${SVC4}`
+
+#
+# Compress PDS first to ensure it will have enough space to bind into
+#
+./dcompress "${HLQ}.${MLQ}.SDFSRESL"
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+
+#
+# Assemble and link the SVC2/SVC4 tables into load module DFSIDEF0
+#
+asm="*
+DFSIDEF0 CSECT
+         DFSIDEF TYPE=BEGIN                                             
+         DFSIDEF TYPE=PARM,SVC2=${SVC2}
+         DFSIDEF TYPE=PARM,SVC4=${SVC4}
+         DFSIDEF TYPE=END                                            
+         END   DFSIDEF0"
+
+echo "${asm}" | mvscmd --pgm=ASMA90 --syslib=${HLQ}.${MLQ}.SDFSMAC --sysin=stdin --sysprint=/tmp/$$.gensvcasm.lst --syslin=/tmp/$$.gensvc.o
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "Assemble failed. See /tmp for details" >&2
+	exit $rc
+fi
+lk="
+  INCLUDE '/tmp/$$.gensvc.o'
+  NAME DFSIDEF0(R)"
+echo "${lk}" | mvscmd --pgm=IEWL --args='RENT,REFR,NCAL,XREF,LIST' --syslin=stdin --sysprint=/tmp/$$.gensvclk.lst \
+                      --syslmod=${HLQ}.${MLQ}.SDFSRESL
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "DFSIDEF0 Link failed. See /tmp for details" >&2
+	exit $rc
+fi
+
+#
+# Link the SVC2 module into IGC${SVC2}
+#
+lk="
+  CHANGE DFSVC200(IGC${SVC2})   TYPE 2 SVC FOR MVS
+  INCLUDE ADFSLOAD(DFSVC200)
+  NAME IGC${SVC2}(R)"
+echo "${lk}" | mvscmd --pgm=IEWL --args='RENT,REFR,NCAL,SCTR,XREF,LIST' --syslin=stdin --sysprint=/tmp/$$.gensvc2lk.lst \
+                      --adfsload=${HLQ}.${MLQ}.ADFSLOAD --syslmod=${HLQ}.${MLQ}.SDFSRESL
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "SVC2 Link failed. See /tmp for details" >&2
+	exit $rc
+fi
+
+#
+# Link the SVC4 module into IGC00${ZDSVC4}
+#
+lk="
+  INCLUDE ADFSLOAD(DSP00MVS)  TYPE 4 SVC FOR MVS
+  NAME    IGC00${ZDSVC4}(R)"
+echo "${lk}" | mvscmd --pgm=IEWL --args='RENT,REFR,NCAL,LET,XREF,LIST' --syslin=stdin --sysprint=/tmp/$$.gensvc4lk.lst \
+                      --adfsload=${HLQ}.${MLQ}.ADFSLOAD --syslmod=${HLQ}.${MLQ}.SDFSRESL
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "SVC2 Link failed. See /tmp for details" >&2
+	exit $rc
+fi
+
+#
+# TBD: Bind SVC2 into the SYS1.NUCLEUS (and ipl)
+# TBD: Bind SVC4 into an LPA or MLPA library
+
+rm -rf /tmp/$$.*

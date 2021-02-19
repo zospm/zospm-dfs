@@ -31,9 +31,13 @@ function runJCL {
 			echo "Job ${jobid} ABENDED" >&2
 			return 32
 		;;
+		JCLERR)
+			echo "Job ${jobid} has a JCL error" >&2
+			return 32
+		;;
 		*)
 			sleep 1
-			currwait=$((curwait+1))
+			currwait=$((currwait+1))
 		esac
 		if [ ${currwait} -gt ${maxwait} ]; then
 			echo "Timed out waiting for job ${jobid} to complete" >&2

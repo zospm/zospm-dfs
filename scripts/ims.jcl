@@ -13,6 +13,7 @@
 //RUN   EXEC PGM=DFSMVRC0,DPRTY=&DPTY,                                  00480000
 //            REGION=&RGN,                                              00490000
 //            PARM='CTL,&RGSUF,&PARM1,&PARM2'                           00500000
+//PROCLIB  DD DSN=&NODE1..&SYS1..PROCLIB,DISP=SHR
 //STEPLIB  DD DSN=&NODE2..&SYS2..SDFSRESL,DISP=SHR                      04050000
 //IMSIRD   DD SYSOUT=(A,INTRDR)                                         04140000
 //QBLKS    DD DSN=&NODE1..&SYS1..QBLKS,DISP=OLD                         04670000

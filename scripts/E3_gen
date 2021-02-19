@@ -1,0 +1,17 @@
+#!/bin/sh
+#set -x
+HLQ=ZOSPMT
+MLQ=DFSF20
+
+members='IV3E308J IV3E309J IV3E312J IV3E313J IV3E314J IV3E315J IV3E317J IV3E318J IV3E319J'
+for mem in ${members}; do
+	jcl="${HLQ}.${MLQ}.INSTALIB(${mem})"
+	./runjcl "${jcl}"
+	rc=$?
+	if [ $rc -gt 4 ]; then
+		echo "GEN job ${jcl} failed with $rc" >&2
+		exit $rc
+	fi
+done
+
+exit 0

@@ -1,0 +1,38 @@
+#!/bin/sh
+#set -x
+
+function change {
+	old="$1"
+	new="$2"
+	ds="$3"
+
+	dsed "s/${old}/${new}/g" "${ds}"
+	dsedrc=$?
+	if [ $dsedrc -gt 0 ]; then
+		rc=$dsedrc
+	fi
+}
+
+HLQ=ZOSPMT
+MLQ=DFSF20
+PROCLIB="SYS1.PROCLIB"
+
+rc=0
+proc="${PROCLIB}(IVP15CR1)"
+change "NODE1=IMS,.*" "NODE1=${HLQ}.${MLQ}," "${proc}"
+change "NODE2=IMS.*"  "NODE2=${HLQ}.${MLQ}"  "${proc}"
+change "\*IMSTFMTA"   "IMSTFMTA"             "${proc}"
+change "\*IMSTFMTB"   "IMSTFMTB"             "${proc}"
+
+
+proc="${PROCLIB}(IVP15DL1)"
+change "NODE1=IMS,.*" "NODE1=${HLQ}.${MLQ}," "${proc}"
+change "NODE2=IMS.*"  "NODE2=${HLQ}.${MLQ}"  "${proc}"
+
+proc="${PROCLIB}(IVP15RC1)"
+change "NODE2=IMS.*"  "NODE2=${HLQ}.${MLQ}"  "${proc}"
+
+proc="${PROCLIB}(IVP15RD1)"
+change "NODE2=IMS.*"  "NODE2=${HLQ}.${MLQ}"  "${proc}"
+
+exit $rc

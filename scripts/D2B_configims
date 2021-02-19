@@ -1,0 +1,58 @@
+#!/bin/sh
+#set -x
+. ./dynreg.fn 
+
+hlq=ZOSPMT
+mlq=DFSF20
+
+# TBD: add in  ZOSPMI.VTAMLIB ?
+apfllq="SDFSRESL MODBLKSA MODBLKSB SDXRRESL SDFSJLIB"
+for llq in ${apfllq}; do
+	dataset="${hlq}.${mlq}.${llq}"
+	dynamicAPFRegister "ADD" "${dataset}"
+	rc=$?
+	if [ $rc -gt 0 ]; then
+		exit $rc
+	fi
+done
+
+imsppt="
+                             /* IMS ONLINE CONTROL REGION            */
+   PPT PGMNAME(DFSMVRC0)     /* PROGRAM NAME = DFSMVRC0              */
+            CANCEL           /* PROGRAM CAN BE CANCELLED             */
+            KEY(7)           /* PROTECT KEY ASSIGNED IS 7            */
+            NOSWAP           /* PROGRAM IS NOT-SWAPPABLE             */
+            NOPRIV           /* PROGRAM IS NOT PRIVILEGED            */
+            SYST             /* PROGRAM IS A SYSTEM TASK             */
+            DSI              /* DOES REQUIRE DATA SET INTEGRITY      */
+            PASS             /* PASSWORD PROTECTION ACTIVE           */
+            AFF(NONE)        /* NO CPU AFFINITY                      */
+
+                             /* BPE - BASE PRIMITIVE ENVIRONMENT     */
+   PPT PGMNAME(BPEINI00)     /* PROGRAM NAME = BPEINI00              */
+            CANCEL           /* PROGRAM CAN BE CANCELLED             */
+            KEY(7)           /* PROTECT KEY ASSIGNED IS 7            */
+            NOSWAP           /* PROGRAM IS NOT-SWAPPABLE             */
+            NOPRIV           /* PROGRAM IS NOT PRIVILEGED            */
+            DSI              /* REQUIRES DATA SET INTEGRITY          */
+            PASS             /* CANNOT BYPASS PASSWORD PROTECTION    */
+            SYST             /* PROGRAM IS A SYSTEM TASK             */
+            AFF(NONE)        /* NO CPU AFFINITY                      */
+
+PPT PGMNAME(HWSHWS00)     /* PROGRAM NAME = HWSHWS00           */
+         CANCEL           /* PROGRAM CAN BE CANCELED           */
+         KEY(7)           /* PROTECT KEY ASSIGNED IS 7         */
+         SWAP             /* PROGRAM IS SWAPPABLE              */
+         NOPRIV           /* PROGRAM IS NOT PRIVILEGED         */
+         DSI              /* REQUIRES DATA SET INTEGRITY       */
+         PASS             /* CANNOT BYPASS PASSWORD PROTECTION */
+         SYST             /* PROGRAM IS A SYSTEM TASK          */
+         AFF(NONE)        /* NO CPU AFFINITY                   */
+"
+
+dynamicPPTRegister "ADD" "@@" "${imsppt}"
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+	

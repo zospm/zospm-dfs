@@ -1,0 +1,52 @@
+#!/bin/sh
+#set -x
+export HLQ=ZOSPMT
+export MLQ=DFSF20
+
+# Generate some members and rename some members
+# in the SDSFPROC dataset
+#
+proc="${HLQ}.${MLQ}.SDFSPROC"
+iebupdtout="/tmp/$$.out"
+out=`mvscmd --pgm=IEBUPDTE --sysprint=* --sysut1="${proc}" --sysut2="${proc}" --sysin=stdin` <<zz
+./        ADD  NAME=CBLTDLI
+  LIBRARY SDFSRESL(CBLTDLI)     DL/I LANG INTF
+  LIBRARY SDFSRESL(DFHEI01)     HLPI LANG INTF
+  LIBRARY SDFSRESL(DFHEI1)      HLPI LANG INTF
+  ENTRY DLITCBL
+./        ADD  NAME=PLITDLI
+  LIBRARY SDFSRESL(PLITDLI)     PL/I LANG INTF
+  LIBRARY SDFSRESL(DFHEI01)     HLPI LANG INTF
+  LIBRARY SDFSRESL(DFHEI1)      HLPI LANG INTF
+  ENTRY PLICALLA
+./        ADD  NAME=DFSMREC
+0,MODBLKSA,IMSACBA,FORMATA
+./        ADD  NAME=REFCPY
+          COPY INDD=REFOUT,OUTDD=REFOUT
+./        ADD  NAME=DFSACBCP
+          COPY INDD=IMSACB,OUTDD=IMSACB
+./        ADD  NAME=FMTCPY
+          COPY INDD=FORMAT,OUTDD=FORMAT
+zz
+rc=$?
+
+if [ $rc -gt 0 ]; then
+	echo "IEBUPDATE failed." >&2
+	echo "${out}" >&2
+fi
+
+out=`mvscmd --pgm=IEBCOPY --sysprint=* --input="${proc}" --output="${proc}" --sysin=stdin` <<zz
+ COPY I=((INPUT,R)),O=OUTPUT
+ SELECT MEMBER=((DFSDBDGN,DBDGEN))
+ SELECT MEMBER=((DFSIMSBT,IMSBATCH))
+ SELECT MEMBER=((DFSPSBGN,PSBGEN))
+zz
+rc=$?
+
+if [ $rc -gt 0 ]; then
+	echo "IEBCOPY (copy and rename) failed." >&2
+	echo "${out}" >&2
+	exit $rc
+fi
+
+exit 0

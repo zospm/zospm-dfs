@@ -1,0 +1,12 @@
+#!/bin/sh
+#set -x
+
+hlq=ZOSPMT
+mlq=DFSF20
+
+./runjcl "${hlq}.${mlq}.INSTALIB(IV3E101J)"
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+	
