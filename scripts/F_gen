@@ -3,10 +3,72 @@
 HLQ=ZOSPMT
 MLQ=DFSF20
 
-maxwait=10
-jobs='IV3F101J:0 IV3F102J:0 IV3F103J:0 IV3F104J:0 IV3F106J:1 IV3F201J:0 IV3F204J:0 IV3F205J:0 IV3F206J:0 IV3F207J:0 IV3F209J:0 IV3F210J:0 IV3F211J:0 IV3F212J:0 IV3F301J:0 IV3F302J:0 IV3F303J:0 IV3F305J:0 IV3F401J'
 ds="${HLQ}.${MLQ}.INSTALIB"
+maxwait=10
+jobs='IV3F101J:0 IV3F102J:0 IV3F103J:0 IV3F104J:0 IV3F106J:1'
 ./runjobs "${ds}" ${maxwait} ${jobs}
 rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
 
+out=`./runjob "${ds}(IV3F201J)" 5 0 2>&1 >/dev/null`
+rc=$?
+if [ $rc -ne 64 ]; then
+	echo "Expected job IV3F201J to continue running but it completed with rc $rc" >&2
+	exit $rc
+fi
+irlmjobid=`echo ${out} | awk '{ print $1; }'`
+
+jobs='IV3F204J IV3F205J'
+for job in ${jobs}; do
+	./runjobandreply "${ds}(${job})" 5 0 "INSERT IS DONE, REPLY"
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		echo "Expected job ${job} to run and then finish after reply clean, but it stopped with rc:$rc" >&2
+		exit $rc
+	fi
+done
+
+jobs='IV3F206J IV3F207J'
+for job in ${jobs}; do
+	out=`./runjob "${ds}(${job})" 5 0 2>&1 >/dev/null`
+	rc=$?
+	if [ $rc -ne 64 ]; then
+		echo "Expected job ${job} to continue running, but it stopped with rc:$rc" >&2
+		exit $rc
+	fi
+        jobid=`echo ${out} | awk '{ print $1; }'`
+	opercmd "\$C${jobid},DUMP"
+done
+
+jobs='IV3F209J:0 IV3F210J:0'
+./runjobs "${ds}" ${maxwait} ${jobs}
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+
+jobs='IV3F211J IV3F212J'
+for job in ${jobs}; do
+	./runjobandreply "${ds}(${job})" 5 0 "INSERT IS DONE, REPLY"
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		echo "Expected job ${job} to run and then finish after reply clean, but it stopped with rc:$rc" >&2
+		exit $rc
+	fi
+done
+
+opercmd "P IVP15RL1"
+#msf - add check here that CC of job is 0
+echo "IRLM Job ${irlmjobid} stopped"
+
+echo <<zz
+jobs='IV3F301J:0 IV3F302J:0 IV3F303J:0 IV3F305J:0 IV3F401J'
+./runjobs "${ds}" ${maxwait} ${jobs}
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+zz
 exit $rc 

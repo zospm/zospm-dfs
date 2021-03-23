@@ -1,20 +1,30 @@
 #!/bin/sh
 #set -x
 
-function runJob {
+function runJobAndReply {
 	jcl="$1"     
 	maxwait=$2
 	maxrc=$3
+	msg="$4"
 
-echo "$jcl"
+	out=`./runjob "${jcl}" ${maxwait} ${maxrc} 2>&1 >/dev/null`
+	rc=$?
+	if [ $rc -ne 64 ]; then
+		echo "Expected job to continue running but it completed with rc $rc" >&2
+		return $rc
+	fi
+	#
+	#msf - clean this up
+	#
+	jobid=`echo ${out} | awk '{ print $1; }'`
+	out=`pcon -r | grep $jobid | grep "${msg}"`
+	reply=`echo ${out} | awk '{ print $8; }'`
+	reply=${reply##*@}
+	opercmd "r ${reply}"
+
 	if [ "${jcl#*/}" = "${jcl}" ]; then
 		# Dataset - no slashes
 		jcl="//'${jcl}'"
-	fi
-	jobid=`submit $jcl | awk '{ print $2 }'`
-	rc=$?
-	if [ $rc -gt 0 ]; then
-		return $rc
 	fi
 
 	currwait=0
@@ -50,8 +60,5 @@ echo "$jcl"
 	done
 }
 
-runJob $* 
+runJobAndReply $* 
 exit $?   
-		
-
-
