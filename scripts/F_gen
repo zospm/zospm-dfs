@@ -63,12 +63,11 @@ opercmd "P IVP15RL1"
 #msf - add check here that CC of job is 0
 echo "IRLM Job ${irlmjobid} stopped"
 
-echo <<zz
 jobs='IV3F301J:0 IV3F302J:0 IV3F303J:0 IV3F305J:0 IV3F401J'
 ./runjobs "${ds}" ${maxwait} ${jobs}
 rc=$?
 if [ $rc -gt 0 ]; then
 	exit $rc
 fi
-zz
+
 exit $rc 
