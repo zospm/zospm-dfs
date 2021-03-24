@@ -1,0 +1,26 @@
+#!/bin/sh
+#set -x
+HLQ=ZOSPMT
+MLQ=DFSF20
+
+ds="${HLQ}.${MLQ}.INSTALIB"
+maxwait=10
+
+jobs='IV3H101J:0 IV3H102J:0 IV3H103J:0 IV3H104J:4 IV3H105J:0'
+./runjobs "${ds}" ${maxwait} ${jobs}
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+
+opercmd "DUMPDS CLEAR,DSN=ALL"
+
+out=`./runjob "${ds}(IV3H201J)" 5 0 2>&1 >/dev/null`
+rc=$?
+if [ $rc -ne 64 ]; then
+	echo "Expected job IV3H201J to continue running but it completed with rc $rc" >&2
+	exit $rc
+fi
+irlmjobid=`echo ${out} | awk '{ print $1; }'`
+
+

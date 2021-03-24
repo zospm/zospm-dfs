@@ -1,0 +1,83 @@
+#!/bin/sh
+#set -x
+
+lstds='ZOSPMI.VTAMLST' 
+libds='ZOSPMI.VTAMLIB'
+
+ivpapli="${lstds}(IVPAPLI)"
+ivpclt="${lstds}(IVPCLT)"
+ivpcli="${lstds}(IVPCLI)"
+atcconiv="${lstds}(ATCCONIV)"
+atcstriv="${lstds}(ATCSTRIV)"
+
+ivpmodtb="${libds}(IVPMODTB)"
+ivpmodtbsrc='./ivpmodtb.s'
+ivpintab="${libds}(IVPINTAB)"
+ivpintabsrc='./ivpintab.s'
+ivpusstb="${libds}(IVPUSSTB)"
+ivpusstbsrc='./ivpusstb.s'
+maclib="SYS1.MACLIB:SYS1.SISTMAC1"
+
+#
+#msf - add rc checks to all of this
+#
+decho "IVPAPLI  VBUILD TYPE=APPL                                               
+IVPAPLL1 APPL  AUTH=(PASS,ACQ,SPO),DLOGMOD=IMS,MODETAB=IVPMODTB,       X
+               PRTCT=IVPPASS1,PARSESS=YES                              " ${ivpapli}
+
+decho "IVPLCLT  LBUILD                                                         
+T1301    LOCAL  CUADDR=301,TERM=3277,FEATUR2=(MODEL2),                 X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                          
+T1302    LOCAL  CUADDR=302,TERM=3277,FEATUR2=(MODEL2),                 X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                          
+T1303    LOCAL  CUADDR=303,TERM=3277,FEATUR2=(MODEL2),                 X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                          
+T1304    LOCAL  CUADDR=304,TERM=3277,FEATUR2=(MODEL2),                 X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                          
+T1305    LOCAL  CUADDR=305,TERM=3277,FEATUR2=(MODEL2),                 X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                         " ${ivpclt}
+
+decho "IVPLCLI  LBUILD                                                         
+PMASTER1 LOCAL CUADDR=311,TERM=3277,FEATUR2=(MODEL2),                  X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                          
+USER1 LOCAL CUADDR=313,TERM=3277,FEATUR2=(MODEL2),                     X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                          
+USER2 LOCAL CUADDR=314,TERM=3277,FEATUR2=(MODEL2),                     X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                          
+DFSETO01  LOCAL CUADDR=315,TERM=3277,FEATUR2=(MODEL2),                 X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                          
+DFSETO02  LOCAL CUADDR=316,TERM=3277,FEATUR2=(MODEL2),                 X
+               DLOGMOD=D4B32XX3,USSTAB=IVPUSSTB,LOGTAB=IVPINTAB,       X
+               ISTATUS=ACTIVE,MODETAB=IVPMODTB                         " ${ivpcli}
+
+# 
+# msf - clean this up
+#
+as -I"${maclib}" -o/tmp/$$.o "${ivpmodtbsrc}"
+ld -o"//'${ivpmodtb}'" /tmp/$$.o
+
+as -I"${maclib}" -o/tmp/$$.o "${ivpintabsrc}"
+ld -o"//'${ivpintab}'" /tmp/$$.o
+
+as -I"${maclib}" -o/tmp/$$.o "${ivpusstbsrc}"
+ld -o"//'${ivpusstb}'" /tmp/$$.o
+
+rm /tmp/$$.o
+
+decho "IVPLCLT,IVPAPLI,IVPLCLI " ${atcconiv}
+
+decho " CONFIG=IV,                                                            X
+ SSCPID=03,MAXSUBA=15,HOSTSA=3,                                        X
+ SSCPNAME=M94SSCP,NETID=M94NET                                          " ${atcstriv}
+
+
+msf - need to add IV3D308T here -

@@ -1,0 +1,11 @@
+#!/bin/sh
+#set -x
+
+hlq="ZOSPMI"
+vtamlst="${hlq}.VTAMLST"
+vtamlib="${hlq}.VTAMLIB"
+
+drm -f ${vtamlst} ${vtamlib} 
+
+dtouch -tpds -b46 -B23440 ${vtamlst}
+dtouch -tpds -b46 -B32760 -ru ${vtamlib}
