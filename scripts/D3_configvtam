@@ -1,8 +1,13 @@
 #!/bin/sh
+
 #set -x
+
+mydir='./'
 
 lstds='ZOSPMI.VTAMLST' 
 libds='ZOSPMI.VTAMLIB'
+
+maclib="SYS1.MACLIB:SYS1.SISTMAC1"
 
 ivpapli="${lstds}(IVPAPLI)"
 ivpclt="${lstds}(IVPCLT)"
@@ -10,17 +15,20 @@ ivpcli="${lstds}(IVPCLI)"
 atcconiv="${lstds}(ATCCONIV)"
 atcstriv="${lstds}(ATCSTRIV)"
 
-ivpmodtb="${libds}(IVPMODTB)"
-ivpmodtbsrc='./ivpmodtb.s'
-ivpintab="${libds}(IVPINTAB)"
-ivpintabsrc='./ivpintab.s'
-ivpusstb="${libds}(IVPUSSTB)"
-ivpusstbsrc='./ivpusstb.s'
-maclib="SYS1.MACLIB:SYS1.SISTMAC1"
+ivpmodtb="//'${libds}(IVPMODTB)'"
+ivpmodtbsrc="${mydir}/ivpmodtb.s"
+ivpintab="//'${libds}(IVPINTAB)'"
+ivpintabsrc="${mydir}/ivpintab.s"
+ivpusstb="//'${libds}(IVPUSSTB)'"
+ivpusstbsrc="${mydir}/ivpusstb.s"
+ivpvtamproc="${mydir}/ivpvtam.jcl"
 
 #
 #msf - add rc checks to all of this
 #
+./dcompress "${lstds}"
+./dcompress "${libds}"
+
 decho "IVPAPLI  VBUILD TYPE=APPL                                               
 IVPAPLL1 APPL  AUTH=(PASS,ACQ,SPO),DLOGMOD=IMS,MODETAB=IVPMODTB,       X
                PRTCT=IVPPASS1,PARSESS=YES                              " ${ivpapli}
@@ -60,24 +68,28 @@ DFSETO02  LOCAL CUADDR=316,TERM=3277,FEATUR2=(MODEL2),                 X
                ISTATUS=ACTIVE,MODETAB=IVPMODTB                         " ${ivpcli}
 
 # 
-# msf - clean this up
+# msf - clean this up, check rcs, use 'better' /tmp
 #
-as -I"${maclib}" -o/tmp/$$.o "${ivpmodtbsrc}"
-ld -o"//'${ivpmodtb}'" /tmp/$$.o
+tmpo="/tmp/$$.o"
+as -I"${maclib}" -o"${tmpo}" "${ivpmodtbsrc}"
+ld -o${ivpmodtb} "${tmpo}"
 
-as -I"${maclib}" -o/tmp/$$.o "${ivpintabsrc}"
-ld -o"//'${ivpintab}'" /tmp/$$.o
+as -I"${maclib}" -o"${tmpo}" "${ivpintabsrc}"
+ld -o${ivpintab} "${tmpo}"
 
-as -I"${maclib}" -o/tmp/$$.o "${ivpusstbsrc}"
-ld -o"//'${ivpusstb}'" /tmp/$$.o
+as -I"${maclib}" -o"${tmpo}" "${ivpusstbsrc}"
+ld -o${ivpusstb} "${tmpo}"
 
-rm /tmp/$$.o
+rm "${tmpo}"
 
 decho "IVPLCLT,IVPAPLI,IVPLCLI " ${atcconiv}
 
 decho " CONFIG=IV,                                                            X
  SSCPID=03,MAXSUBA=15,HOSTSA=3,                                        X
- SSCPNAME=M94SSCP,NETID=M94NET                                          " ${atcstriv}
+ SSCPNAME=M94SSCP,NETID=M94NET                                         " ${atcstriv}
 
-
-msf - need to add IV3D308T here -
+#
+# have to do this because dcp does not support './' as a path
+#
+data=`cat "${ivpvtamproc}"`
+decho "${data}" "SYS1.PROCLIB(IVPVTAM)"

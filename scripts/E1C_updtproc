@@ -21,8 +21,8 @@ rc=0
 proc="${PROCLIB}(IVP15CR1)"
 change "NODE1=IMS,.*" "NODE1=${HLQ}.${MLQ}," "${proc}"
 change "NODE2=IMS.*"  "NODE2=${HLQ}.${MLQ}"  "${proc}"
-change "\*IMSTFMTA"   "IMSTFMTA"             "${proc}"
-change "\*IMSTFMTB"   "IMSTFMTB"             "${proc}"
+change "\*IMSTFMTA"   "IMSTFMTA "            "${proc}"
+change "\*IMSTFMTB"   "IMSTFMTB "            "${proc}"
 
 
 proc="${PROCLIB}(IVP15DL1)"
