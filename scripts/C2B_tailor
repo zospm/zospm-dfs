@@ -7,6 +7,11 @@ export MLQ=DFSF20
 # in the SDSFPROC dataset
 #
 proc="${HLQ}.${MLQ}.SDFSPROC"
+mem="CBLTDLI PLITDLI DFSMREC"
+for m in $mem; do
+	mrm "${proc}(${m})" 2>/dev/null
+done
+   
 iebupdtout="/tmp/$$.out"
 out=`mvscmd --pgm=IEBUPDTE --sysprint=* --sysut1="${proc}" --sysut2="${proc}" --sysin=stdin` <<zz
 ./        ADD  NAME=CBLTDLI
@@ -30,7 +35,7 @@ out=`mvscmd --pgm=IEBUPDTE --sysprint=* --sysut1="${proc}" --sysut2="${proc}" --
 zz
 rc=$?
 
-if [ $rc -gt 0 ]; then
+if [ $rc -gt 4 ]; then
 	echo "IEBUPDATE failed." >&2
 	echo "${out}" >&2
 fi

@@ -5,17 +5,6 @@
 hlq=ZOSPMT
 mlq=DFSF20
 
-# TBD: add in  ZOSPMI.VTAMLIB ?
-apfllq="SDFSRESL MODBLKSA MODBLKSB SDXRRESL SDFSJLIB"
-for llq in ${apfllq}; do
-	dataset="${hlq}.${mlq}.${llq}"
-	dynamicAPFRegister "ADD" "${dataset}"
-	rc=$?
-	if [ $rc -gt 0 ]; then
-		exit $rc
-	fi
-done
-
 imsppt="
                              /* IMS ONLINE CONTROL REGION            */
    PPT PGMNAME(DFSMVRC0)     /* PROGRAM NAME = DFSMVRC0              */
@@ -52,7 +41,8 @@ PPT PGMNAME(HWSHWS00)     /* PROGRAM NAME = HWSHWS00           */
 
 dynamicPPTRegister "ADD" "@@" "${imsppt}"
 rc=$?
-if [ $rc -gt 0 ]; then
+if [ $rc -gt 4 ]; then
 	exit $rc
 fi
+exit 0
 	

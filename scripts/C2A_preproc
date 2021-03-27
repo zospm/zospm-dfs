@@ -2,4 +2,11 @@
 #set -x
 export HLQ=ZOSPMT
 export MLQ=DFSF20
-echo "        IMSCTRL ALL SYSTEM=DCCTL" | mvscmd --pgm=DFSPRE00 --steplib=${HLQ}.${MLQ}.sdfsresl --syslib=${HLQ}.${MLQ}.sdfsmac --sysprint=stdout --sysin=stdin
+imsctl="${HLQ}.${MLQ}.INSTALIB(IV3C201T)"
+out=`mvscmd --pgm=DFSPRE00 --steplib=${HLQ}.${MLQ}.SDFSRESL --syslib=${HLQ}.${MLQ}.SDFSMAC --sysprint=stdout --sysin="${imsctl}"`
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "${out}" >&2
+	exit $rc
+fi
+exit 0

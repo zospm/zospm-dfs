@@ -1,0 +1,13 @@
+#!/bin/sh
+#
+# cleanispf: clean up ISPF tables to enable re-import from scratch
+#
+
+hlq=ZOSPMT
+mlq=DFSF20
+
+llqs="INSTATBL INSTALIB"
+for llq in $llqs; do
+	drm -f "${hlq}.${mlq}.${llq}"
+	dtouch -s20m "${hlq}.${mlq}.${llq}"
+done

@@ -15,7 +15,7 @@ function change {
 
 HLQ=ZOSPMT
 MLQ=DFSF20
-PROCLIB="SYS1.PROCLIB"
+PROCLIB="${HLQ}.${MLQ}.PROCLIB"
 
 rc=0
 proc="${PROCLIB}(IVP15CR1)"

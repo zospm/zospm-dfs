@@ -1,0 +1,55 @@
+#!/bin/sh
+. ./dynreg.fn
+
+function chkdtouch {
+	dtouchparms=$*
+	for parm in $*; do
+		dataset="${parm}"
+	done	
+	echo "Allocate ${dataset}"
+	drm -f "${dataset}"
+	dtouch ${dtouchparms}
+	if [ $? -gt 0 ]; then
+		echo "Error allocating dataset: ${dataset}" >&2
+		exit 16
+	fi
+}
+
+hlq=ZOSPMT
+mlq=DFSF20
+
+ihlq=ZOSPMI
+
+datasets="${hlq}.${mlq}.QBLKS ${hlq}.${mlq}.SHMSG ${hlq}.${mlq}.LGMSG"
+for dataset in ${datasets}; do
+	chkdtouch -tseq ${dataset}
+done
+
+datasets="${hlq}.${mlq}.ACBLIBA ${hlq}.${mlq}.ACBLIBB ${hlq}.${mlq}.FORMATA ${hlq}.${mlq}.FORMATB ${ihlq}.TFORMAT"
+for dataset in ${datasets}; do
+	chkdtouch -tpds -ru -l0 -B6144 ${dataset}
+done
+
+datasets="${hlq}.${mlq}.MODBLKSA ${hlq}.${mlq}.MODBLKSB"
+for dataset in ${datasets}; do
+	chkdtouch -tpds -ru -l0 -B32760 ${dataset}
+done
+
+datasets="${hlq}.${mlq}.MODSTAT ${ihlq}.REFERAL ${ihlq}.USERMAC"
+for dataset in ${datasets}; do
+	chkdtouch -tpds -rfb -l80 -B80 -s56664 ${dataset}
+done
+
+dataset="${hlq}.${mlq}.RDS"
+chkdtouch -tseq -B4096 ${dataset}
+
+apfds="${hlq}.${mlq}.SDFSRESL ${hlq}.${mlq}.MODBLKSA ${hlq}.${mlq}.MODBLKSB ${hlq}.${mlq}.SDFSJLIB ${hlq}.${mlq}.SDXRRESL"
+for dataset in ${apfds}; do
+	echo "APF Authorize: ${dataset}"
+	dynamicAPFRegister "ADD" "${dataset}"
+	if [ $? -gt 0 ]; then
+		echo "Unable to APF register: ${dataset}" >&2
+		exit 16
+	fi
+done	
+exit 0

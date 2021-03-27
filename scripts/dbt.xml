@@ -150,11 +150,11 @@
 <var>IXULELKD</var> <val>CEE.SCEELKED</val>
 <var>IXUUMAC3</var> <val></val>
 <var>IXUUMAC2</var> <val></val>
-<var>IXUUMAC1</var> <val>ZOSPMI.DFSF20.USERMAC</val>
+<var>IXUUMAC1</var> <val>ZOSPMI.USERMAC</val>
 <var>IXUSMACT</var> <val>HLA.SASMMAC2</val>
 <var>IXUSAMOD</var> <val>SYS1.MODGEN</val>
 <var>IXUSMACL</var> <val>SYS1.MACLIB</val>
-<var>IXUSPROC</var> <val>SYS1.PROCLIB</val>
+<var>IXUSPROC</var> <val>ZOSPMT.DFSF20.PROCLIB</val>
 <var>IXUTZONE</var> <val>DFSF20T</val>
 <var>IXUGZDSN</var> <val>ZOSPMS.DFSF20G.GLOBAL.CSI</val>
 <var>IXUVSAMD</var> <val>8192</val>
@@ -187,5 +187,5 @@
 <var>IXUEXEHQ</var> <val>ZOSPMI</val>
 <var>IXUSYSHQ</var> <val>ZOSPMT.DFSF20</val>
 <var>IXUDLBHQ</var> <val>ZOSPMT.DFSF20</val>
-<var>IXURLMHQ</var> <val>ZOSPMI</val>
+<var>IXURLMHQ</var> <val>ZOSPMT.DFSF20</val>
 <var>IXUIVPHQ</var> <val>ZOSPMT.DFSF20</val>

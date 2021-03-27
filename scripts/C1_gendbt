@@ -1,0 +1,48 @@
+#!/bin/sh
+#set -x
+HLQ=ZOSPMT
+MLQ=DFSF20
+
+maxwait=10
+ds="${HLQ}.${MLQ}.INSTALIB"
+jobs='IV3C101J:0'
+./runjobs "${ds}" ${maxwait} ${jobs} 
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+
+asm="${HLQ}.${MLQ}.INSTALIB(IV3C201T)"
+jcl='/tmp/imsgen.jcl'
+
+mvscmd --pgm=ASMA90 --syslib=${HLQ}.${MLQ}.SDFSMAC --sysin="${asm}" --sysprint=dummy --syslin="${jcl}"
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "IMSGEN Assemble failed. See /tmp for details" >&2
+	exit $rc
+fi
+
+#
+# Need to compress this dataset if doing repeated imsgen's
+#
+./dcompress ZOSPMI.TFORMAT
+rc=$?
+if [ $rc -gt 0 ]; then
+	echo "Unable to compress ZOSPMI.TFORMAT before IMSGEN" >&2
+	exit $rc
+fi
+
+./runjob "${jcl}" ${maxwait} 4
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+
+jobs='IV3C202J:0 IV3C203J:0'
+./runjobs "${ds}" ${maxwait} ${jobs} 
+rc=$?
+if [ $rc -gt 0 ]; then
+	exit $rc
+fi
+
+exit 0

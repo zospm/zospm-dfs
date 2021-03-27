@@ -5,11 +5,12 @@ MLQ=DFSF20
 
 ds="${HLQ}.${MLQ}.INSTALIB"
 maxwait=10
-jobs='IV3C301J:4 IV3C302J:0 IV3C401J:0'
-./runjobs "${ds}" ${maxwait} ${jobs} 
+
+jobs='IV3F301J:0 IV3F302J:0 IV3F303J:0 IV3F305J:0 IV3F401J'
+./runjobs "${ds}" ${maxwait} ${jobs}
 rc=$?
 if [ $rc -gt 0 ]; then
 	exit $rc
 fi
 
-exit 0
+exit $rc 

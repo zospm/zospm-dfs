@@ -12,34 +12,38 @@ if [ $rc -gt 0 ]; then
 	exit $rc
 fi
 
-out=`./runjob "${ds}(IV3F201J)" 5 0 2>&1 >/dev/null`
+irlmjobid=`./runjob "${ds}(IV3F201J)" 5 0`
 rc=$?
 if [ $rc -ne 64 ]; then
 	echo "Expected job IV3F201J to continue running but it completed with rc $rc" >&2
 	exit $rc
 fi
-irlmjobid=`echo ${out} | awk '{ print $1; }'`
 
 jobs='IV3F204J IV3F205J'
 for job in ${jobs}; do
 	./runjobandreply "${ds}(${job})" 5 0 "INSERT IS DONE, REPLY"
 	rc=$?
 	if [ $rc -ne 0 ]; then
-		echo "Expected job ${job} to run and then finish after reply clean, but it stopped with rc:$rc" >&2
+		echo "Expected member ${job} to run and then finish after reply clean, but it stopped with rc:$rc" >&2
 		exit $rc
 	fi
 done
 
 jobs='IV3F206J IV3F207J'
 for job in ${jobs}; do
-	out=`./runjob "${ds}(${job})" 5 0 2>&1 >/dev/null`
+	jobid=`./runjob "${ds}(${job})" 5 0`
 	rc=$?
-	if [ $rc -ne 64 ]; then
-		echo "Expected job ${job} to continue running, but it stopped with rc:$rc" >&2
+	if [ $rc -ne 64 ] && [ $rc -ne 0 ]; then
+		echo "Job ${jobid} (member ${job}) should have completed with rc:0 or timed out, but finished with rc:$rc" >&2
+		echo "${out}" >&2
 		exit $rc
 	fi
-        jobid=`echo ${out} | awk '{ print $1; }'`
-	opercmd "\$C${jobid},DUMP"
+	# If this is the first time this job is run, it will be waiting for a reply
+	# If it has run before, it will complete with an RC of 0
+	status=`jls ${jobid} | awk ' { print $4; }'`
+	if [ "$status" = 'AC' ]; then
+		opercmd "\$C${jobid},DUMP"
+	fi
 done
 
 jobs='IV3F209J:0 IV3F210J:0'
@@ -55,6 +59,7 @@ for job in ${jobs}; do
 	rc=$?
 	if [ $rc -ne 0 ]; then
 		echo "Expected job ${job} to run and then finish after reply clean, but it stopped with rc:$rc" >&2
+		echo "${out}" >&2
 		exit $rc
 	fi
 done
@@ -63,11 +68,4 @@ opercmd "P IVP15RL1"
 #msf - add check here that CC of job is 0
 echo "IRLM Job ${irlmjobid} stopped"
 
-jobs='IV3F301J:0 IV3F302J:0 IV3F303J:0 IV3F305J:0 IV3F401J'
-./runjobs "${ds}" ${maxwait} ${jobs}
-rc=$?
-if [ $rc -gt 0 ]; then
-	exit $rc
-fi
-
-exit $rc 
+exit 0

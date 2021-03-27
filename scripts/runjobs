@@ -17,7 +17,7 @@ function runJobs {
 			# USS file - has a slash
 			file="${container}/${job}"
 		fi
-		./runjob "${file}" ${maxwait} ${maxrc}
+		jobid=`./runjob "${file}" ${maxwait} ${maxrc}`
 		rc=$?     
 		if [ $rc -gt 0 ]; then
 			return $rc;

@@ -41,22 +41,24 @@ DFSIDEF0 CSECT
          DFSIDEF TYPE=END                                            
          END   DFSIDEF0"
 
-echo "${asm}" | mvscmd --pgm=ASMA90 --syslib=${HLQ}.${MLQ}.SDFSMAC --sysin=stdin --sysprint=/tmp/$$.gensvcasm.lst --syslin=/tmp/$$.gensvc.o
+out=`echo "${asm}" | mvscmd --pgm=ASMA90 --syslib=${HLQ}.${MLQ}.SDFSMAC --sysin=stdin --sysprint=stdout --syslin=/tmp/$$.gensvc.o`
 rc=$?
 if [ $rc -gt 0 ]; then
-	echo "Assemble failed. See /tmp for details" >&2
+	echo "Assemble failed. with $rc" >&2 
+	echo "${out}" >&2
 	exit $rc
 fi
 lk="
   INCLUDE '/tmp/$$.gensvc.o'
   NAME DFSIDEF0(R)"
-echo "${lk}" | mvscmd --pgm=IEWL --args='RENT,REFR,NCAL,XREF,LIST' --syslin=stdin --sysprint=/tmp/$$.gensvclk.lst \
-                      --syslmod=${HLQ}.${MLQ}.SDFSRESL
+out=`echo "${lk}" | mvscmd --pgm=IEWL --args='RENT,REFR,NCAL,XREF,LIST' --syslin=stdin --sysprint=stdout --syslmod=${HLQ}.${MLQ}.SDFSRESL`
 rc=$?
 if [ $rc -gt 0 ]; then
-	echo "DFSIDEF0 Link failed. See /tmp for details" >&2
+	echo "DFSIDEF0 Link failed with $rc" >&2
+	echo "${out}" >&2
 	exit $rc
 fi
+rm /tmp/$$.gensvc.o
 
 #
 # Link the SVC2 module into IGC${SVC2}
@@ -65,11 +67,11 @@ lk="
   CHANGE DFSVC200(IGC${SVC2})   TYPE 2 SVC FOR MVS
   INCLUDE ADFSLOAD(DFSVC200)
   NAME IGC${SVC2}(R)"
-echo "${lk}" | mvscmd --pgm=IEWL --args='RENT,REFR,NCAL,SCTR,XREF,LIST' --syslin=stdin --sysprint=/tmp/$$.gensvc2lk.lst \
-                      --adfsload=${HLQ}.${MLQ}.ADFSLOAD --syslmod=${HLQ}.${MLQ}.SDFSRESL
+out=`echo "${lk}" | mvscmd --pgm=IEWL --args='RENT,REFR,NCAL,SCTR,XREF,LIST' --syslin=stdin --sysprint=stdout --adfsload=${HLQ}.${MLQ}.ADFSLOAD --syslmod=${HLQ}.${MLQ}.SDFSRESL`
 rc=$?
 if [ $rc -gt 0 ]; then
-	echo "SVC2 Link failed. See /tmp for details" >&2
+	echo "SVC2 Link failed with $rc" >&2
+	echo "${out}" >&2
 	exit $rc
 fi
 
@@ -79,11 +81,11 @@ fi
 lk="
   INCLUDE ADFSLOAD(DSP00MVS)  TYPE 4 SVC FOR MVS
   NAME    IGC00${ZDSVC4}(R)"
-echo "${lk}" | mvscmd --pgm=IEWL --args='RENT,REFR,NCAL,LET,XREF,LIST' --syslin=stdin --sysprint=/tmp/$$.gensvc4lk.lst \
-                      --adfsload=${HLQ}.${MLQ}.ADFSLOAD --syslmod=${HLQ}.${MLQ}.SDFSRESL
+out=`echo "${lk}" | mvscmd --pgm=IEWL --args='RENT,REFR,NCAL,LET,XREF,LIST' --syslin=stdin --sysprint=stdout --adfsload=${HLQ}.${MLQ}.ADFSLOAD --syslmod=${HLQ}.${MLQ}.SDFSRESL`
 rc=$?
 if [ $rc -gt 0 ]; then
-	echo "SVC2 Link failed. See /tmp for details" >&2
+	echo "SVC2 Link failed with $rc" >&2
+	echo "${out}" >&2
 	exit $rc
 fi
 
@@ -91,4 +93,4 @@ fi
 # TBD: Bind SVC2 into the SYS1.NUCLEUS (and ipl)
 # TBD: Bind SVC4 into an LPA or MLPA library
 
-rm -rf /tmp/$$.*
+exit 0

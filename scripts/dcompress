@@ -10,12 +10,11 @@ if [ $# -eq 0 ]; then
 fi
 ds="$1"
 
-out="/tmp/$$.compress.lst"
-echo "  COPY OUTDD=OUT,INDD=IN" | mvscmd --pgm=IEBCOPY --in=${ds},old --out=${ds},old --sysin=stdin --sysprint="${out}"
+out=`echo "  COPY OUTDD=SYSUT2,INDD=SYSUT1" | mvscmd --pgm=IEBCOPY --sysut1=${ds},old --sysut2=${ds},old --sysin=stdin --sysprint=stdout`
 rc=$?
 if [ $rc -gt 0 ]; then
 	echo "Compress failed." >&2
-	cat "${out}"
+	opercmd "display grs,res=(*,${ds})" 
+	echo "${out}" >&2
 fi
-rm "${out}"
 exit $rc

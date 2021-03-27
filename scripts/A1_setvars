@@ -1,0 +1,17 @@
+#!/bin/sh
+#set -x
+hlq=ZOSPMT
+mlq=DFSF20
+
+drm -f "${hlq}.${mlq}.IVPVAR"
+dtouch "${hlq}.${mlq}.IVPVAR"
+xmls=*.xml
+cp ${xmls} /tmp
+
+for xml in ${xmls}; do
+	iconv -fISO8859-1 -tIBM-1047 <${xml} >/tmp/${xml}
+	mem="${xml%*.xml}"
+	dcp /tmp/${xml} "${hlq}.${mlq}.IVPVAR(${mem})"
+done
+echo "Import IVP Vars from ${hlq}.${mlq}.IVPVAR PDS, then generate INSTALIB files"
+

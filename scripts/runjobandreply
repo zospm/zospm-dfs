@@ -7,16 +7,15 @@ function runJobAndReply {
 	maxrc=$3
 	msg="$4"
 
-	out=`./runjob "${jcl}" ${maxwait} ${maxrc} 2>&1 >/dev/null`
+	jobid=`./runjob "${jcl}" ${maxwait} ${maxrc}`
 	rc=$?
 	if [ $rc -ne 64 ]; then
-		echo "Expected job to continue running but it completed with rc $rc" >&2
+		echo "Expected JCL ${jcl} to continue running but it completed with rc $rc" >&2
 		return $rc
 	fi
 	#
 	#msf - clean this up
 	#
-	jobid=`echo ${out} | awk '{ print $1; }'`
 	out=`pcon -r | grep $jobid | grep "${msg}"`
 	reply=`echo ${out} | awk '{ print $8; }'`
 	reply=${reply##*@}

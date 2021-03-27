@@ -6,7 +6,6 @@ function runJob {
 	maxwait=$2
 	maxrc=$3
 
-echo "$jcl"
 	if [ "${jcl#*/}" = "${jcl}" ]; then
 		# Dataset - no slashes
 		jcl="//'${jcl}'"
@@ -16,6 +15,8 @@ echo "$jcl"
 	if [ $rc -gt 0 ]; then
 		return $rc
 	fi
+
+	echo "${jobid}"
 
 	currwait=0
 	while [ true ]; do
