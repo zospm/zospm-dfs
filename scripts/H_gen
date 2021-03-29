@@ -15,17 +15,16 @@ fi
 
 opercmd "DUMPDS CLEAR,DSN=ALL"
 
-irlmjobid=`./runjob "${ds}(IV3H201J)" 10 0`
+irlmjobid=`./startjob "${ds}(IV3H201J)" ${maxwait} 'DXR117I IRLM001 INITIALIZATION COMPLETE'`
 rc=$?
-if [ $rc -ne 64 ]; then
-	echo "Expected job IV3H201J to continue running but it completed with rc $rc" >&2
+if [ $rc -ne 0 ]; then
+	echo "Unable to start job IV3H201J"
 	exit $rc
 fi
-
-dbdcjobid=`./runjob "${ds}(IV3H203J)" 10 0`
+dbdcjobid=`./startjob "${ds}(IV3H203J)" ${maxwait} 'DFS3613I - FP TCB INITIALIZATION COMPLETE IVP1'`
 rc=$?
-if [ $rc -ne 64 ]; then
-	echo "Expected job IV3H203J to continue running but it completed with rc $rc" >&2
+if [ $rc -ne 0 ]; then
+	echo "Unable to start job IV3H203J"
 	exit $rc
 fi
 

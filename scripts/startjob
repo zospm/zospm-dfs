@@ -1,0 +1,43 @@
+#!/bin/sh
+#set -x
+
+function startJob {
+	jcl="$1"     
+	maxwait=$2
+	msg="$4"
+
+	if [ "${jcl#*/}" = "${jcl}" ]; then
+		# Dataset - no slashes
+		jcl="//'${jcl}'"
+	fi
+	if [ "${maxwait}" = '' ]; then
+		maxwait=10
+	fi
+	md=`./mdate`
+	jobid=`submit $jcl | awk '{ print $2 }'`
+	rc=$?
+	if [ $rc -ne 0 ]; then
+		echo "Job submission of $jcl failed" >&2
+		return $rc
+	fi
+
+	echo ${jobid}
+	currwait=0
+	while [ true ]; do
+		match=`pcon -s ${md} 2>/dev/null | awk -vjobid=$jobid '{ if ($6 == jobid) { print }}' | grep "${msg}"`
+		rc=$?
+		if [ ${rc} -eq 0 ]; then
+			return 0
+		else
+			sleep 1
+			currwait=$((currwait+1))
+		fi
+		if [ ${currwait} -gt ${maxwait} ]; then
+			echo "${jobid} (JCL ${jcl}) timed out waiting for initialization complete message" >&2
+			return 64 
+		fi
+	done
+}
+
+startJob $* 
+exit $?   

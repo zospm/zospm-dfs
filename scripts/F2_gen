@@ -12,10 +12,10 @@ if [ $rc -gt 0 ]; then
 	exit $rc
 fi
 
-irlmjobid=`./runjob "${ds}(IV3F201J)" 5 0`
+irlmjobid=`./startjob "${ds}(IV3F201J)" ${maxwait} 'DXR117I IRLM001 INITIALIZATION COMPLETE'`
 rc=$?
-if [ $rc -ne 64 ]; then
-	echo "Expected job IV3F201J to continue running but it completed with rc $rc" >&2
+if [ $rc -ne 0 ]; then
+	echo "Unable to start job IV3F201J"
 	exit $rc
 fi
 
