@@ -5,6 +5,6 @@ MLQ=DFSF20
 
 maxwait=10
 jcl="${HLQ}.${MLQ}.INSTALIB(IV3E102J)"
-./runjob "${jcl}" ${maxwait} 4
+./runjob "${jcl}" ${maxwait} 4 >/dev/null
 rc=$?
 exit $rc

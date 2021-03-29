@@ -193,6 +193,6 @@ function dynamicAPFRegister {
 	else
             	setstr="VOLUME=${volume}"
 	fi
-	opercmd "SETPROG APF,${averb},DSNAME=${dataset},${setstr}" >/dev/null 2>&1
+	opercmd "SETPROG APF,${averb},DSNAME=${dataset},${setstr}" >/dev/null 2>/dev/null
 	return $?
 }

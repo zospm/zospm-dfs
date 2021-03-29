@@ -21,7 +21,7 @@ fi
 
 jobs='IV3F204J IV3F205J'
 for job in ${jobs}; do
-	./runjobandreply "${ds}(${job})" 5 0 "INSERT IS DONE, REPLY"
+	./runjobandreply "${ds}(${job})" ${maxwait} 0 'INSERT IS DONE, REPLY'
 	rc=$?
 	if [ $rc -ne 0 ]; then
 		echo "Expected member ${job} to run and then finish after reply clean, but it stopped with rc:$rc" >&2
@@ -31,18 +31,21 @@ done
 
 jobs='IV3F206J IV3F207J'
 for job in ${jobs}; do
-	jobid=`./runjob "${ds}(${job})" 5 0`
+	jobid=`./startjob "${ds}(${job})" ${maxwait} 'INSERT IS DONE, REPLY'`
 	rc=$?
-	if [ $rc -ne 64 ] && [ $rc -ne 0 ]; then
-		echo "Job ${jobid} (member ${job}) should have completed with rc:0 or timed out, but finished with rc:$rc" >&2
-		echo "${out}" >&2
+	if [ $rc -ne 0 ]; then
+		echo "Unable to start job ${ds}(${job})" >&2
 		exit $rc
 	fi
 	# If this is the first time this job is run, it will be waiting for a reply
 	# If it has run before, it will complete with an RC of 0
-	status=`jls ${jobid} | awk ' { print $4; }'`
+	status=`jls ${jobid} 2>/dev/null | awk ' { print $4; }'`
 	if [ "$status" = 'AC' ]; then
-		opercmd "\$C${jobid},DUMP"
+		if [ ${verbose} ]; then
+			opercmd "\$C${jobid},DUMP" 
+		else 
+			opercmd "\$C${jobid},DUMP" >/dev/null 2>/dev/null
+		fi
 	fi
 done
 
@@ -59,13 +62,16 @@ for job in ${jobs}; do
 	rc=$?
 	if [ $rc -ne 0 ]; then
 		echo "Expected job ${job} to run and then finish after reply clean, but it stopped with rc:$rc" >&2
-		echo "${out}" >&2
 		exit $rc
 	fi
 done
 
-opercmd "P IVP15RL1"
+if [ ${verbose} ]; then
+	opercmd "P IVP15RL1"
+	echo " IRLM Job ${irlmjobid} stopped"
+else
+	opercmd "P IVP15RL1" >/dev/null 2>/dev/null
+fi
 #msf - add check here that CC of job is 0
-echo "IRLM Job ${irlmjobid} stopped"
 
 exit 0

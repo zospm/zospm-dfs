@@ -13,7 +13,11 @@ if [ $rc -gt 0 ]; then
 	exit $rc
 fi
 
-opercmd "DUMPDS CLEAR,DSN=ALL"
+if [ ${verbose} ]; then
+	opercmd "DUMPDS CLEAR,DSN=ALL"
+else
+	opercmd "DUMPDS CLEAR,DSN=ALL" >/dev/null 2>/dev/null
+fi
 
 irlmjobid=`./startjob "${ds}(IV3H201J)" ${maxwait} 'DXR117I IRLM001 INITIALIZATION COMPLETE'`
 rc=$?

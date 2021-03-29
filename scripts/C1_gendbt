@@ -6,7 +6,7 @@ MLQ=DFSF20
 maxwait=10
 ds="${HLQ}.${MLQ}.INSTALIB"
 jobs='IV3C101J:0'
-./runjobs "${ds}" ${maxwait} ${jobs} 
+./runjobs "${ds}" ${maxwait} ${jobs} >/dev/null
 rc=$?
 if [ $rc -gt 0 ]; then
 	exit $rc
@@ -32,14 +32,14 @@ if [ $rc -gt 0 ]; then
 	exit $rc
 fi
 
-./runjob "${jcl}" ${maxwait} 4
+./runjob "${jcl}" ${maxwait} 4 >/dev/null
 rc=$?
 if [ $rc -gt 0 ]; then
 	exit $rc
 fi
 
 jobs='IV3C202J:0 IV3C203J:0'
-./runjobs "${ds}" ${maxwait} ${jobs} 
+./runjobs "${ds}" ${maxwait} ${jobs} >/dev/null
 rc=$?
 if [ $rc -gt 0 ]; then
 	exit $rc

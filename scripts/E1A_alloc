@@ -5,7 +5,7 @@ hlq=ZOSPMT
 mlq=DFSF20
 maxwait=10
 
-./runjob "${hlq}.${mlq}.INSTALIB(IV3E101J)" ${maxwait} 0
+./runjob "${hlq}.${mlq}.INSTALIB(IV3E101J)" ${maxwait} 0 >/dev/null
 rc=$?
 exit $rc
 	

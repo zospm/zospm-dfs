@@ -24,6 +24,9 @@ function runJob {
 
 	echo "${jobid}"
 
+	if [ ${verbose} ]; then
+		echo " JCL ${jcl} submitted as job ${jobid}" >&2
+	fi
 	currwait=0
 	while [ true ]; do
 		status=`jls 2>/dev/null ${jobid}`

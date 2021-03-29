@@ -1,4 +1,8 @@
 #!/bin/sh
+opts=$1
+if [ "${opts}" = '-v' ]; then
+	export verbose=true
+fi
 
 steps="A* C* D* E* F* H*" 
 

@@ -5,8 +5,10 @@ function chkdtouch {
 	dtouchparms=$*
 	for parm in $*; do
 		dataset="${parm}"
-	done	
-	echo "Allocate ${dataset}"
+	done		
+	if [ ${verbose} ]; then
+		echo " Allocate ${dataset}"
+	fi
 	drm -f "${dataset}"
 	dtouch ${dtouchparms}
 	if [ $? -gt 0 ]; then
@@ -45,7 +47,9 @@ chkdtouch -tseq -B4096 ${dataset}
 
 apfds="${hlq}.${mlq}.SDFSRESL ${hlq}.${mlq}.MODBLKSA ${hlq}.${mlq}.MODBLKSB ${hlq}.${mlq}.SDFSJLIB ${hlq}.${mlq}.SDXRRESL"
 for dataset in ${apfds}; do
-	echo "APF Authorize: ${dataset}"
+	if [ ${verbose} ]; then
+		echo " APF Authorize: ${dataset}"
+	fi
 	dynamicAPFRegister "ADD" "${dataset}"
 	if [ $? -gt 0 ]; then
 		echo "Unable to APF register: ${dataset}" >&2
