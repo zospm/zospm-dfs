@@ -1,0 +1,168 @@
+#!/u/ibmuser/tnz/bin/python3
+# -*- coding: utf-8 -*-
+import re
+import sys
+from tnz.ati import ati
+ati.set("TRACE", "ALL")
+
+#
+# Set up connection
+#
+ati.set("ONERROR", "1")
+ati.set("DISPLAY", "HOST")
+ati.set("SESSION_HOST","torzdt1.canlab.ibm.com")
+ati.set("SESSION_PORT","8124")
+ati.set("SESSION","TNZ1")
+
+#if (ati.scrhas("Enter ")):
+#	ati.wait(lambda: ati.scrhas("Enter "))
+#	ati.send("L TSO[enter]")
+
+#
+# Logon (specific to ADCD system
+#
+ati.wait(lambda: ati.scrhas("USERID"))
+ati.send("IBMUSER[enter]")
+ati.wait(lambda: ati.scrhas("Password  ===> "))
+ati.send("SYS1[enter]")
+
+ati.wait(lambda: ati.scrhas("ispf"))
+ati.send("[enter]")
+ati.wait(lambda: ati.scrhas("ICH70001I"))
+ati.send("[enter]")
+ati.wait(lambda: ati.scrhas("ISPF Primary Option Menu"))
+
+#
+# Run TSO program to bring up IMS IVP Gen panel
+#
+ati.send("tso exec 'zospmt.dfsf20.sdfsexec(dfsappl)' 'hlq(zospmt.dfsf20)'[enter]")
+ 
+#
+# This should bring up the IMS Application Menu, choose option 6
+#
+ati.wait(lambda: ati.scrhas("IMS Application Menu")) 
+ati.send("6[enter]")
+
+#
+# This should bring up the IVP Environment Options, choose option 3 (DBT)
+#
+ati.wait(lambda: ati.scrhas("IVP Environment Options"))
+ati.send("3[enter]")
+
+#
+# This should bring up the Sub-Option Selection. Hit enter and take defaults
+#
+ati.wait(lambda: ati.scrhas("Sub-Option Selection"))
+ati.send("[enter]")
+
+#
+# This should bring up the Table Merge Request. Specify 1 (YES - regenerate)
+# 
+ati.wait(lambda: ati.scrhas("Table Merge Request"))
+ati.send("1[enter]")
+
+#
+# After doing table merge (which takes a minute or two), a new panel comes up
+# Hit enter
+# 
+ati.wait(lambda: ati.scrhas(" Table Merge has completed"))
+ati.send("[enter]")
+
+#
+# This should bring up the IVP Phase Selection. Specify 2 (variable gathering) 
+# Hit enter
+# 
+ati.wait(lambda: ati.scrhas("IVP Phase Selection"))
+ati.send("2[enter]")
+
+#
+# This should bring up the Variable Gathering. Specify imp (import)
+# Hit enter
+# 
+ati.wait(lambda: ati.scrhas("Variable Gathering"))
+ati.send("imp[enter]")
+
+#
+# This should bring up IVP Import/Export File Name. Specify the file to import (ZOSPMT.DFSF20.IVPVAR(DBT)) 
+# Hit enter
+# 
+ati.wait(lambda: ati.scrhas("IVP Import/Export File Name"))
+ati.send("ZOSPMT.DFSF20.IVPVAR(DBT)[enter]")
+
+#
+# After about a minute, we come back to Variable Gathering. Specify F3
+# 
+ati.wait(lambda: ati.scrhas("Variable Gathering"))
+ati.send("[pf03]")
+
+#
+# This should bring up VG Complete Verification. 
+# Hit enter
+# 
+ati.wait(lambda: ati.scrhas("VG Complete Verification"))
+ati.send("[enter]")
+
+#
+# This brings us back to the IVP Phase Selection. Specify 4 (file tailoring)
+# Hit enter
+# 
+ati.wait(lambda: ati.scrhas("IVP Phase Selection"))
+ati.send("4[enter]")
+
+#
+# This should bring up the File Tailor ALL Request. Specify 1 (YES - Perform ALL)
+# 
+ati.wait(lambda: ati.scrhas("File Tailor ALL Request"))
+ati.send("1[enter]")
+
+#
+# After doing file tailor (which takes a minute or two), a new panel comes up
+# Hit enter
+#
+ati.wait(lambda: ati.scrhas("FT ALL has completed"))
+ati.send("[enter]")
+
+#
+# This brings up file tailoring. Exit (F3)
+#
+ati.wait(lambda: ati.scrhas("File Tailoring"))
+ati.send("[pf03]")
+
+#
+# This brings up FT Complete Verification. Hit enter
+#
+ati.wait(lambda: ati.scrhas("FT Complete Verification"))
+ati.send("[enter]")
+
+#
+# This brings us back to the IVP Phase Selection. Exit (F3)
+# 
+ati.wait(lambda: ati.scrhas("IVP Phase Selection"))
+ati.send("[pf03]")
+
+#
+# This brings us back to the IVP Environment Options. Exit (F3)
+#
+ati.wait(lambda: ati.scrhas("IVP Environment Options"))
+ati.send("[pf03]")
+
+#
+# This brings us back to the IMS Application Menu. Exit (F3)
+#
+ati.wait(lambda: ati.scrhas("IMS Application Menu"))
+ati.send("[pf03]")
+
+#
+# Logoff
+#
+ati.send("X[enter]")
+ati.wait(lambda: ati.scrhas("Process Option"))
+ati.send("3[enter]")
+ati.wait(lambda: ati.scrhas("Profile sharing active"))
+ati.send("[enter]")
+
+ati.wait(lambda: ati.scrhas("READY"))
+ati.send("logoff[enter]")
+
+# disconnect from host
+ati.drop("SESSION")

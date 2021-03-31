@@ -3,8 +3,40 @@
 
 HLQ=ZOSPMT
 MLQ=DFSF20
-PROCLIB="SYS1.PROCLIB"
+SYSPROC="SYS1.PROCLIB"
+IMSPROC="${HLQ}.${MLQ}.PROCLIB"
+
 MEM="PROC99"
-opercmd "\$ADD PROCLIB(PROC99),DD1=DSN=${HLQ}.${MLQ}.PROCLIB,DD2=DSN=${PROCLIB}" >/dev/null
+IMSTMP="IMSTMP"
+
+#
+# clean up any possible old procs
+#
+opercmd "\$DEL PROCLIB(${MEM})" >/dev/null 2>/dev/null
+opercmd "\$DEL PROCLIB(${IMSTMP})" >/dev/null 2>/dev/null
+
+#
+# Set up PROC99 to just ${IMSPROC} so that JCL can reference IMS procs easily
+#
+opercmd "\$ADD PROCLIB(${MEM}),DD1=DSN=${IMSPROC}" >/dev/null
+
+#
+# Add IMSPROC to the dynamic proclib so that started tasks can be found
+#
+procs=`pproc`
+
+opercmd "\$ADD PROCLIB(${IMSTMP}),DD(1)=DSN=${IMSPROC}" >/dev/null 2>/dev/null
+for proc in $procs; do
+	if [ "${proc}" != "${IMSPROC}" ]; then
+		opercmd "\$T PROCLIB(${IMSTMP}),DD(99)=DSN=${proc}" >/dev/null 2>/dev/null
+	fi
+done
+opercmd "\$T PROCLIB(${IMSTMP}),NAME=PROC00" >/dev/null 2>/dev/null
+
+opercmd "\$DEL PROCLIB(${IMSTMP})" >/dev/null 2>/dev/null
+
+if [ ${verbose} ]; then
+	opercmd "\$D PROCLIB"
+fi
 
 exit $?

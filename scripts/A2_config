@@ -22,12 +22,12 @@ mlq=DFSF20
 
 ihlq=ZOSPMI
 
-datasets="${hlq}.${mlq}.QBLKS ${hlq}.${mlq}.SHMSG ${hlq}.${mlq}.LGMSG"
+datasets="${ihlq}.QBLKS ${ihlq}.SHMSG ${ihlq}.LGMSG"
 for dataset in ${datasets}; do
 	chkdtouch -tseq ${dataset}
 done
 
-datasets="${hlq}.${mlq}.ACBLIBA ${hlq}.${mlq}.ACBLIBB ${hlq}.${mlq}.FORMATA ${hlq}.${mlq}.FORMATB ${ihlq}.TFORMAT"
+datasets="${ihlq}.ACBLIBA ${ihlq}.ACBLIBB ${ihlq}.FORMATA ${ihlq}.FORMATB ${ihlq}.TFORMAT"
 for dataset in ${datasets}; do
 	chkdtouch -tpds -ru -l0 -B6144 ${dataset}
 done
@@ -37,12 +37,12 @@ for dataset in ${datasets}; do
 	chkdtouch -tpds -ru -l0 -B32760 ${dataset}
 done
 
-datasets="${hlq}.${mlq}.MODSTAT ${ihlq}.REFERAL ${ihlq}.USERMAC"
+datasets="${ihlq}.MODSTAT ${ihlq}.REFERAL ${ihlq}.USERMAC"
 for dataset in ${datasets}; do
 	chkdtouch -tpds -rfb -l80 -B80 -s56664 ${dataset}
 done
 
-dataset="${hlq}.${mlq}.RDS"
+dataset="${ihlq}.RDS"
 chkdtouch -tseq -B4096 ${dataset}
 
 apfds="${hlq}.${mlq}.SDFSRESL ${hlq}.${mlq}.MODBLKSA ${hlq}.${mlq}.MODBLKSB ${hlq}.${mlq}.SDFSJLIB ${hlq}.${mlq}.SDXRRESL"
