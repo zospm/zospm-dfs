@@ -1,5 +1,4 @@
 #!/bin/sh
-#set -x
 HLQ=ZOSPMT
 MLQ=DFSF20
 
@@ -25,7 +24,7 @@ if [ $rc -ne 0 ]; then
 	echo "Unable to start job IV3H201J"
 	exit $rc
 fi
-dbdcjobid=`./startjob "${ds}(IV3H203J)" ${maxwait} 'DFS3613I - FP TCB INITIALIZATION COMPLETE IVP1'`
+dbdcjobid=`./startjobandreply "${ds}(IV3H203J)" ${maxwait} '/NRE CHKPT 0 FORMAT ALL'`
 rc=$?
 if [ $rc -ne 0 ]; then
 	echo "Unable to start job IV3H203J"

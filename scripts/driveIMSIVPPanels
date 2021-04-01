@@ -24,7 +24,7 @@ ati.set("SESSION","TNZ1")
 ati.wait(lambda: ati.scrhas("USERID"))
 ati.send("IBMUSER[enter]")
 ati.wait(lambda: ati.scrhas("Password  ===> "))
-ati.send("SYS1[enter]")
+ati.send("...[enter]")
 
 ati.wait(lambda: ati.scrhas("ispf"))
 ati.send("[enter]")

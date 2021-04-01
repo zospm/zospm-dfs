@@ -1,0 +1,39 @@
+#!/bin/sh
+set -x
+
+function startJobAndReply {
+	jcl=$1     
+	maxwait=$2
+	shift 2
+	replymsg=$*
+
+	jobid=`./startjob "${jcl}" ${maxwait} "${msg}"`
+	if [ "${jcl}" = '' ]; then
+		msgp="job ${jobid}"
+	else
+            	msgp="JCL ${jcl}, job ${jobid}"
+	fi
+	currwait=0
+	while [ true ]; do
+		jobname=`jls ${jobid} 2>/dev/null | awk ' { print $2; }'`
+		if [ "${jobname}" != '' ]; then
+			replystatus=`opercmd "D R,JOB=${jobname}" 2>/dev/null`
+			echo "${replystatus}" | grep -q 'MESSAGES NOT FOUND'
+			if [ $? -eq 1 ]; then
+				replynum=`echo "${replystatus}" | tail -1 | awk '{ print $1; }'`
+				opercmd "R ${replynum},${replymsg}" 2>/dev/null
+				return 0
+			fi
+            	fi
+		currwait=$((currwait+1))
+	  	if [ ${currwait} -gt ${maxwait} ]; then
+	          	echo "${msgp} timed out waiting for reply message" >&2
+			./jobstatus ${maxwait} ${jobid} ${jcl}
+	                return $? 
+		fi
+		sleep 1
+	done
+}
+
+startJobAndReply $* 
+exit $?   

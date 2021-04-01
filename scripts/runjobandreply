@@ -13,43 +13,22 @@ function runJobAndReply {
 	match=`pcon -s ${md} 2>/dev/null | awk -vjobid=$jobid '{ if ($6 == jobid) { print }}' | grep "${msg}"`
 	reply=`echo ${match} | awk '{ print $8; }'`
 	reply=${reply##*@}
-	if [ ${verbose} ]; then
-		opercmd "r ${reply}"
-	else
-		opercmd "r ${reply}" >/dev/null 2>/dev/null
-	fi
-
-	currwait=0
-	while [ true ]; do
-		status=`jls 2>/dev/null ${jobid}`
-		state=`echo ${status} | awk ' { print $4; }'`
-		case "$state" in
-		CC)
-			rc=`echo ${status} | awk ' { print $5; }'`
-			if [ $rc -gt ${maxrc} ]; then
-				echo "JCL ${jcl}, job ${jobid} failed with rc: $rc" >&2
-			else 
-				rc=0
-			fi
-			return ${rc}
-		;;
-		ABEND*)
-			echo "JCL ${jcl}, job ${jobid} ABENDED" >&2
-			return 32
-		;;
-		JCLERR)
-			echo "JCL ${jcl}, job ${jobid} has a JCL error" >&2
-			return 32
-		;;
-		*)
-			sleep 1
-			currwait=$((currwait+1))
-		esac
-		if [ ${currwait} -gt ${maxwait} ]; then
-			echo "${jobid} (JCL ${jcl}) timed out waiting to complete" >&2
-			return 64 
+	if [ "${reply}" != '' ]; then
+		if [ ${verbose} ]; then
+			opercmd "r ${reply}"
+		else
+			opercmd "r ${reply}" >/dev/null 2>/dev/null
 		fi
-	done
+	else
+		echo "Reply string: ${msg} not found after starting job" >&2
+	fi
+	
+	./jobstatus ${maxwait} ${jobid} "${jcl}"
+	rc=$?
+	if [ $rc -lt ${maxrc} ]; then
+		rc=0
+	fi
+	return $?
 }
 
 runJobAndReply $* 

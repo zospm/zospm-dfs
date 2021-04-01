@@ -1,0 +1,43 @@
+#!/bin/sh
+#set -x
+
+function jobStatus {
+	maxwait=$1
+	jobid=$2
+	jcl=$3     
+
+	if [ "${jcl}" = '' ]; then
+		msgp="job ${jobid}"
+	else
+		msgp="JCL ${jcl}, job ${jobid}"
+	fi
+	currwait=0
+	while [ true ]; do
+		status=`jls 2>/dev/null ${jobid}`
+		state=`echo ${status} | awk ' { print $4; }'`
+		case "$state" in
+		CC)
+			rc=`echo ${status} | awk ' { print $5; }'`
+			return ${rc}
+		;;
+		ABEND*)
+			echo "${msgp} ABENDED" >&2
+			return 32
+		;;
+		JCLERR)
+			echo "${msgp} has a JCL error" >&2
+			return 48
+		;;
+		*)
+			sleep 1
+			currwait=$((currwait+1))
+		esac
+		if [ ${currwait} -gt ${maxwait} ]; then
+			echo "${msgp} timed out waiting to complete" >&2
+			return 64 
+		fi
+	done
+}
+
+jobStatus $* 
+exit $?   
